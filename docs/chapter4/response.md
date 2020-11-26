@@ -54,6 +54,10 @@ export interface AxiosRequestConfig {
 
 `responseType` 的类型是一个 `XMLHttpRequestResponseType` 类型，它的定义是 `"" | "arraybuffer" | "blob" | "document" | "json" | "text"` 字符串字面量类型。
 
+> When setting responseType to a particular value, the author should make sure that the server is actually sending a response compatible with that format. If the server returns data that is not compatible with the responseType that was set, the value of response will be null.
+>
+> **如果请求指定了 `responseType`，但是服务器返回的数据的类型不符合指定的类型，则 `response` 的值会为 `null`**
+
 ## 实现获取响应数据逻辑
 
 首先我们要在 `xhr` 函数添加 [`onreadystatechange`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/onreadystatechange) 事件处理函数，并且让 `xhr` 函数返回的是 `AxiosPromise` 类型。
@@ -133,6 +137,11 @@ axios({
   }
 }).then((res) => {
   console.log(res)
+  // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
+  // 其 data 属性也是一个字符串
+  // 因为请求没有指定期望服务器返回的数据类型，因此默认返回的是字符串
+  // 尽管点开请求时，在 Preview 面板显示的是一个对象
+  // 应该是 Chrome 对 JSON 对象字符串做了优化
 })
 
 axios({
@@ -145,11 +154,11 @@ axios({
   }
 }).then((res) => {
   console.log(res)
+  // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
+  // 其 data 属性则按请求的 responseType 要求，由浏览器在接收到请求时解析为是一个对象
 })
 ```
 
 我们打开浏览器运行 demo，看一下结果，发现我们可以正常 log 出这个 `res` 变量，它包含 `AxiosResponse` 类型中定义的那些属性，不过我们发现 2 个小问题：第一个是 `headers` 属性是一个字符串，我们需要把它解析成对象类型；第二个是在第一个请求中，得到的数据是一个 JSON 字符串，我们也需要把它转换成对象类型。
 
 那么下一小节，我们将来解决第一个问题，对于响应的 `header` 做处理。
-
-
