@@ -1,17 +1,5 @@
 # 响应数据支持泛型
 
-```typescript
-router.get('/extend/user', function(req, res) {
-  res.json({
-    // 实际上 result 可省略
-    result: {
-      name: 'Jack',
-      age: 18
-    }
-  })
-})
-```
-
 ## 需求分析
 
 通常情况下，我们会把后端返回数据格式单独放入一个接口中：
@@ -105,6 +93,20 @@ export interface AxiosInstance extends Axios {
 接着我们为 `AxiosPromise`、`Axios` 以及 `AxiosInstance` 接口都加上了泛型参数。我们可以看到这些请求的返回类型都变成了 `AxiosPromise<T>`，也就是 `Promise<AxiosResponse<T>>`，这样我们就可以从响应中拿到了类型 `T` 了。
 
 ## demo 编写
+
+`examples/server.js`：
+
+```typescript
+router.get('/extend/user', function(req, res) {
+  res.json({
+    // 实际上 result 可省略
+    result: {
+      name: 'Jack',
+      age: 18
+    }
+  })
+})
+```
 
 `examples/extend/app.ts`：
 
