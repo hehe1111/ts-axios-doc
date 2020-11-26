@@ -1,5 +1,17 @@
 # 响应数据支持泛型
 
+```typescript
+router.get('/extend/user', function(req, res) {
+  res.json({
+    // 实际上 result 可省略
+    result: {
+      name: 'Jack',
+      age: 18
+    }
+  })
+})
+```
+
 ## 需求分析
 
 通常情况下，我们会把后端返回数据格式单独放入一个接口中：
@@ -8,22 +20,10 @@
 // 请求接口数据
 export interface ResponseData<T = any> {
   /**
-   * 状态码
-   * @type { number }
-   */
-  code: number
-
-  /**
    * 数据
    * @type { T }
    */
   result: T
-
-  /**
-   * 消息
-   * @type { string }
-   */
-  message: string
 }
 ```
 
@@ -50,9 +50,7 @@ interface User {
 async function test() {
   // user 被推断出为
   // {
-  //  code: number,
   //  result: { name: string, age: number },
-  //  message: string
   // }
   const user = await getUser<User>()
 }
@@ -143,9 +141,7 @@ test()
 
 ```json
 {
-  code: number
   result: User
-  message: string
 }
 ```
 
