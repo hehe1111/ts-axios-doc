@@ -155,7 +155,7 @@ axios({
 }).then((res) => {
   console.log(res)
   // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
-  // 其 data 属性则按请求的 responseType 要求，由浏览器在接收到请求时解析为是一个对象
+  // 其 data 属性则按请求的 responseType 要求，由浏览器在接收到请求时解析为一个对象
 })
 ```
 
