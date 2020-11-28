@@ -33,7 +33,7 @@ if (withCredentials) {
 
 ## demo 编写
 
-在 `examples` 目录下创建 `more` 目录，在 `cancel` 目录下创建 `index.html`:
+在 `examples` 目录下创建 `more` 目录，在 `more` 目录下创建 `index.html`:
 
 ```html
 <!DOCTYPE html>
