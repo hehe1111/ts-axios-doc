@@ -66,6 +66,15 @@ axios.post('http://127.0.0.1:8088/more/server2', { }, {
 })
 ```
 
+```js
+// server.js
+registerMoreRoutes()
+
+function registerMoreRoutes() {
+  router.get('/more/get', (req, res) => res.json(req.cookies))
+}
+```
+
 这次我们除了给 `server.js` 去配置了接口路由，还创建了 `server2.js`，起了一个跨域的服务。
 
 ```javascript

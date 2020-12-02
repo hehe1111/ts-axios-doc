@@ -129,33 +129,28 @@ describe('interceptors', () => {
     let response: AxiosResponse
     const instance = axios.create()
 
-    instance.interceptors.response.use(() => {
+    instance.interceptors.response.use(_response => {
       return {
         data: 'stuff',
         headers: null,
         status: 500,
         statusText: 'ERR',
-        request: null,
+        request: _response.request,
         config: {}
       }
     })
 
-    instance('/foo').then(res => {
-      response = res
-    })
+    instance('/foo').then(_response => (response = _response))
 
     getAjaxRequest().then(request => {
-      request.respondWith({
-        status: 200,
-        responseText: 'OK'
-      })
+      request.respondWith({ status: 200, responseText: 'OK' })
 
       setTimeout(() => {
         expect(response.data).toBe('stuff')
         expect(response.headers).toBeNull()
         expect(response.status).toBe(500)
         expect(response.statusText).toBe('ERR')
-        expect(response.request).toBeNull()
+        expect(response.request).toEqual(expect.any(XMLHttpRequest))
         expect(response.config).toEqual({})
         done()
       }, 100)

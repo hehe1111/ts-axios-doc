@@ -29,6 +29,22 @@ require('jasmine-ajax')
 
 ## 测试代码编写
 
+`test/helper.ts`：
+
+```typescript
+/**
+ * @description 会为发出的 Ajax 请求根据规范定义一组假的响应，并跟踪发出的 Ajax 请求，方便为结果做断言
+ */
+export function getAjaxRequest(): Promise<JasmineAjaxRequest> {
+  return new Promise(resolve => {
+    // https://gist.github.com/paulsturgess/f1813e0cee2d39ea3b57ca155ec7fee7#file-service_spec-js-L19-L38
+    setTimeout(() => {
+      resolve(jasmine.Ajax.requests.mostRecent())
+    }, 0)
+  })
+}
+```
+
 `test/requests.spec.ts`：
 
 ```typescript
@@ -348,8 +364,8 @@ describe('requests', () => {
     }
 
     config = mergeConfig(this.defaults, config)
-    config.method = config.method.toLowerCase()
-    
+    config.method = config.method!.toLowerCase() as METHOD
+
     // ...
   }
 ```

@@ -66,6 +66,7 @@ interface URLOrigin {
   host: string
 }
 
+const currentOrigin = resolveURL(window.location.href)
 
 export function isURLSameOrigin(requestURL: string): boolean {
   const parsedOrigin = resolveURL(requestURL)
@@ -74,19 +75,17 @@ export function isURLSameOrigin(requestURL: string): boolean {
   )
 }
 
-const urlParsingNode = document.createElement('a')
-const currentOrigin = resolveURL(window.location.href)
-
 function resolveURL(url: string): URLOrigin {
+  let urlParsingNode: HTMLAnchorElement | null = document.createElement('a')
   urlParsingNode.setAttribute('href', url)
   const { protocol, host } = urlParsingNode
+  urlParsingNode = null
 
-  return {
-    protocol,
-    host
-  }
+  return { protocol, host }
 }
 ```
+
+[Javascript: document.createElement('') & delete DOMElement](https://stackoverflow.com/a/1847289/14449377)
 
 同域名的判断主要利用了一个技巧，创建一个 a 标签的 DOM，然后设置 `href` 属性为我们传入的 `url`，然后可以获取该 DOM 的 `protocol`、`host`。当前页面的 `url` 和请求的 `url` 都通过这种方式获取，然后对比它们的 `protocol` 和 `host` 是否相同即可。
 
@@ -128,17 +127,6 @@ if ((withCredentials || isURLSameOrigin(url!)) && xsrfCookieName){
 
 ## demo 编写
 
-```typescript
-const instance = axios.create({
-  xsrfCookieName: 'XSRF-TOKEN-D',
-  xsrfHeaderName: 'X-XSRF-TOKEN-D'
-})
-
-instance.get('/more/get').then(res => {
-  console.log(res)
-})
-```
-
 `examples/server.js`：
 
 ```javascript
@@ -149,8 +137,19 @@ app.use(express.static(__dirname, {
 }))
 ```
 
-在访问页面的时候，服务端通过 `set-cookie` 往客户端种了 `key` 为 `XSRF-TOKEN`，值为 `1234abc` 的 `cookie`，作为 `xsrf` 的 `token` 值。
+`examples/more/app.ts`：
 
-然后我们在前端发送请求的时候，就能从 cookie 中读出 `key` 为 `XSRF-TOKEN` 的值，然后把它添加到 `key` 为 `X-XSRF-TOKEN` 的请求 `headers` 中。
+```typescript
+const instance = axios.create({
+  xsrfCookieName: 'XSRF-TOKEN-D',
+  xsrfHeaderName: 'X-XSRF-TOKEN-D'
+})
+
+instance.get('/more/get').then(res => console.log(res.config.headers))
+```
+
+在访问页面的时候，服务端通过 `set-cookie` 往客户端种了 `key` 为 `XSRF-TOKEN-D`，值为 `1234abc` 的 `cookie`，作为 `xsrf` 的 `token` 值。
+
+然后我们在前端发送请求的时候，就能从 cookie 中读出 `key` 为 `XSRF-TOKEN-D` 的值，然后把它添加到 `key` 为 `X-XSRF-TOKEN-D` 的请求 `headers` 中。
 
 至此，我们实现了 XSRF 的自动防御的能力，下节课我们来实现 ts-axios 对上传和下载请求的支持。
