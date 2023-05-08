@@ -22,9 +22,12 @@
   },
   "homepage": "https://github.com/Suremotoo/ts-axios-doc#readme",
   "devDependencies": {
-    "vuepress": "^1.0.0-alpha.44"
+    "vuepress": "1.0.0-alpha.44"
   },
   "dependencies": {
-    "gh-pages": "^2.0.1"
+    "gh-pages": "2.0.1"
+  },
+  "engines": {
+    "node": "<=16"
   }
 }

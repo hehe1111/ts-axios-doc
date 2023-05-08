@@ -10,6 +10,8 @@ TypeScript 从零实现 axios 文档教材
 git clone https://github.com/Suremotoo/ts-axios-doc.git
 ```
 
+【node 的版本必须小于等于 16，否则 npm run dev 会报错并直接退出】
+
 进入 `ts-axios-doc` 目录后安装项目依赖：
 
 ```bash
