@@ -153,15 +153,18 @@ export default axios
 ```typescript
 import axios, { AxiosError } from '../../src/index'
 
-axios({
-  method: 'get',
-  url: '/error/timeout',
-  timeout: 2000
-}).then((res) => {
-  console.log(res)
-}).catch((e: AxiosError) => {
-  console.log(e.message)
-  console.log(e.code)
+createButton('错误：超时', () => {
+  axios({
+    method: 'get',
+    url: '/error/timeout',
+    timeout: 2000
+  }).then((res) => {
+    console.log(res)
+  }).catch((e: AxiosError) => {
+    console.log('e.message', e.message)
+    console.log('e.config', e.config)
+    console.log('e.code', e.code)
+  })
 })
 ```
 
