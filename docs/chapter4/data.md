@@ -4,7 +4,49 @@
 
 我们通过执行 `XMLHttpRequest` 对象实例的 `send` 方法来发送请求，并通过该方法的参数设置请求 `body` 数据，我们可以去 [mdn](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send) 查阅该方法支持的参数类型。
 
+【MDN 的解释有个地方写错了】
+
+![MDN 的解释有个地方写错了](./_images/02.png)
+
 我们发现 `send` 方法的参数支持 `Document` 和 `BodyInit` 类型，`BodyInit` 包括了 `Blob`, `BufferSource`, `FormData`, `URLSearchParams`, `ReadableStream`、`USVString`，当没有数据的时候，我们还可以传入 `null`。
+
+【可以看下官方给的示例】
+
+【[Example: GET](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#example_get)】
+
+```js
+const xhr = new XMLHttpRequest();
+xhr.open('GET', '/server', true);
+
+xhr.onload = () => {
+  // Request finished. Do processing here.
+};
+
+xhr.send(null);
+// xhr.send('string');
+// xhr.send(new Blob());
+// xhr.send(new Int8Array());
+// xhr.send(document);
+```
+
+【[Example: POST](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/send#example_post)】
+
+```js
+const xhr = new XMLHttpRequest();
+xhr.open("POST", '/server', true);
+
+// Send the proper header information along with the request
+xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+xhr.onreadystatechange = () => { // Call a function when the state changes.
+  if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+    // Request finished. Do processing here.
+  }
+}
+xhr.send("foo=bar&lorem=ipsum");
+// xhr.send(new Int8Array());
+// xhr.send(document);
+```
 
 但是我们最常用的场景还是传一个普通对象给服务端，例如：
 
@@ -12,9 +54,9 @@
 axios({
   method: 'post',
   url: '/base/post',
-  data: { 
+  data: {
     a: 1,
-    b: 2 
+    b: 2
   }
 })
 ```
@@ -77,7 +119,6 @@ if (isDate(val)) {
 ```typescript
 import { transformRequest } from './helpers/data'
 
-```typescript
 function processConfig (config: AxiosRequestConfig): void {
   config.url = transformURL(config)
   config.data = transformRequestData(config)
@@ -95,21 +136,25 @@ function transformRequestData (config: AxiosRequestConfig): any {
 ## 编写 demo
 
 ```typescript
-axios({
-  method: 'post',
-  url: '/base/post',
-  data: {
-    a: 1,
-    b: 2
-  }
+createButton('处理 data：对象', () => {
+  axios({
+    method: 'post',
+    url: '/base/post',
+    data: {
+      a: 1,
+      b: 2
+    }
+  })
 })
 
-const arr = new Int32Array([21, 31])
+createButton('处理 data：Int32Array', () => {
+  const arr = new Int32Array([21, 31])
 
-axios({
-  method: 'post',
-  url: '/base/buffer',
-  data: arr
+  axios({
+    method: 'post',
+    url: '/base/buffer',
+    data: arr
+  })
 })
 ```
 
@@ -141,5 +186,3 @@ router.post('/base/buffer', function(req, res) {
 实际上是因为我们虽然执行 `send` 方法的时候把普通对象 `data` 转换成一个 `JSON` 字符串，但是我们请求`header` 的 `Content-Type` 是 `text/plain;charset=UTF-8`，导致了服务端接受到请求并不能正确解析请求 `body` 的数据。
 
 知道这个问题后，下面一节课我们来实现对请求 `header` 的处理。
-
-
