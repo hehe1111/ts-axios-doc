@@ -45,7 +45,10 @@ axios({
 ```typescript
 import { isPlainObject } from './util'
 
-function normalizeHeaderName (headers: any, normalizedName: string): void {
+/**
+ * @description header 属性名规范化：将 headers 的键替换为传入的 normalizedName
+ */
+function normalizeHeaderName(headers: any, normalizedName: string): void {
   if (!headers) {
     return
   }
@@ -57,9 +60,9 @@ function normalizeHeaderName (headers: any, normalizedName: string): void {
   })
 }
 
-export function processHeaders (headers: any, data: any): any {
+export function processHeaders(headers: any, data: any): any {
   normalizeHeaderName(headers, 'Content-Type')
-  
+
   if (isPlainObject(data)) {
     if (headers && !headers['Content-Type']) {
       headers['Content-Type'] = 'application/json;charset=utf-8'
@@ -90,13 +93,13 @@ export interface AxiosRequestConfig {
 `index.ts`：
 
 ```typescript
-function processConfig (config: AxiosRequestConfig): void {
+function processConfig(config: AxiosRequestConfig): void {
   config.url = transformURL(config)
   config.headers = transformHeaders(config)
   config.data = transformRequestData(config)
 }
 
-function transformHeaders (config: AxiosRequestConfig) {
+function transformHeaders(config: AxiosRequestConfig) {
   const { headers = {}, data } = config
   return processHeaders(headers, data)
 }
@@ -107,7 +110,7 @@ function transformHeaders (config: AxiosRequestConfig) {
 `xhr.ts`：
 
 ```typescript
-export default function xhr (config: AxiosRequestConfig): void {
+export default function xhr(config: AxiosRequestConfig): void {
   const { data = null, url, method = 'get', headers } = config
 
   const request = new XMLHttpRequest()
@@ -131,37 +134,73 @@ export default function xhr (config: AxiosRequestConfig): void {
 ## demo 编写
 
 ```typescript
-axios({
-  method: 'post',
-  url: '/base/post',
-  data: {
-    a: 1,
-    b: 2
-  }
+createButton('处理 headers：data 为对象，则请求头默认加上 Content-Type: application/json;charset=utf-8', () => {
+  axios({
+    method: 'post',
+    url: '/base/post',
+    data: {
+      a: 1,
+      b: 2
+    }
+  })
 })
 
-axios({
-  method: 'post',
-  url: '/base/post',
-  headers: {
-    'content-type': 'application/json;'
-  },
-  data: {
-    a: 1,
-    b: 2
-  }
+createButton('处理 headers：以开发者传入的为准', () => {
+  axios({
+    method: 'post',
+    url: '/base/post',
+    headers: {
+      'content-type': 'application/json;'
+    },
+    data: {
+      a: 1,
+      b: 2
+    }
+  })
 })
 
-const paramsString = 'q=URLUtils.searchParams&topic=api'
-const searchParams = new URLSearchParams(paramsString)
+createButton('处理 headers：new URLSearchParams', () => {
+  // https://developer.mozilla.org/zh-CN/docs/Web/API/URLSearchParams#示例
+  const paramsString = 'q=URLUtils.searchParams&topic=api'
+  // const paramsString = 'a=1&b=2'
+  const searchParams = new URLSearchParams(paramsString)
+  console.log('searchParams ===', searchParams);
 
-axios({
-  method: 'post',
-  url: '/base/post',
-  data: searchParams
+  // 请求头会自动被设置上 Content-Type: application/x-www-form-urlencoded;charset=UTF-8
+  axios({
+    method: 'post',
+    url: '/base/post',
+    data: searchParams
+  })
 })
 ```
 
-通过 demo 我们可以看到，当我们请求的数据是普通对象并且没有配置 `headers` 的时候，会自动为其添加 `Content-Type:application/json;charset=utf-8`；同时我们发现当 data 是某些类型如 `URLSearchParams` 的时候，浏览器会自动为请求 `header`加上合适的 `Content-Type`。
+【`data` 为 `URLSearchParams` 对象时，请求头会自动被设置上 `Content-Type: application/x-www-form-urlencoded;charset=UTF-8`，点开控制台 Payload 面板查看，可以看到是传输的 Form Data】
+
+![](./_images/03.png)
+
+【[`URLSearchParams` 对象示例 - MDN](https://developer.mozilla.org/zh-CN/docs/Web/API/URLSearchParams#示例)】
+
+```js
+var paramsString = "q=URLUtils.searchParams&topic=api"
+var searchParams = new URLSearchParams(paramsString);
+
+for (let p of searchParams) {
+  console.log(p);
+}
+
+searchParams.has("topic") === true; // true
+searchParams.get("topic") === "api"; // true
+searchParams.getAll("topic"); // ["api"]
+searchParams.get("foo") === null; // true
+searchParams.append("topic", "webdev");
+searchParams.toString(); // "q=URLUtils.searchParams&topic=api&topic=webdev"
+searchParams.set("topic", "More webdev");
+searchParams.toString(); // "q=URLUtils.searchParams&topic=More+webdev"
+searchParams.delete("topic");
+searchParams.toString(); // "q=URLUtils.searchParams"
+```
+
+通过 demo 我们可以看到，当我们请求的数据是普通对象并且没有配置 `headers` 的时候，会自动为其添加 `Content-Type:application/json;charset=utf-8`；同时我们发现当 **data 是某些类型如 `URLSearchParams` 的时候，浏览器会自动为请求 `header`加上合适的 `Content-Type`**。
 
 至此我们对于请求的处理逻辑暂时告一段落。目前我们的请求从网络层面是可以收到服务端的响应的，下一节课我们就从代码层面来处理服务端响应，并且让调用方可以拿到从服务端返回的数据。
