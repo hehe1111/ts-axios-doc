@@ -241,36 +241,77 @@ export default axios
 
 ```typescript
 import axios from '../../src/index'
+import createButton from '../create-button'
 
-axios({
-  url: '/extend/post',
-  method: 'post',
-  data: {
-    msg: 'hi'
-  }
+createButton('调用 axios 函数（其实相当于调用 axios.request 函数）', () => {
+  axios({
+    url: '/extend/post',
+    method: 'post',
+    data: {
+      msg: 'hi'
+    }
+  })
 })
 
-axios.request({
-  url: '/extend/post',
-  method: 'post',
-  data: {
-    msg: 'hello'
-  }
+createButton('调用 axios.request 函数', () => {
+  axios.request({
+    url: '/extend/post',
+    method: 'post',
+    data: {
+      msg: 'hello'
+    }
+  })
 })
 
-axios.get('/extend/get')
+createButton('调用 get 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.get('/extend/get')
+})
 
-axios.options('/extend/options')
+createButton('调用 options 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.options('/extend/options')
+})
 
-axios.delete('/extend/delete')
+createButton('调用 delete 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.delete('/extend/delete')
+})
 
-axios.head('/extend/head')
+createButton('调用 head 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.head('/extend/head')
+})
 
-axios.post('/extend/post', { msg: 'post' })
+createButton('调用 post 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.post('/extend/post', { msg: 'post' })
+})
 
-axios.put('/extend/put', { msg: 'put' })
+createButton('调用 put 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.put('/extend/put', { msg: 'put' })
+})
 
-axios.patch('/extend/patch', { msg: 'patch' })
+createButton('调用 patch 函数（其实就是相当于调用 axios.request 函数）', () => {
+  axios.patch('/extend/patch', { msg: 'patch' })
+})
+```
+
+【且在 `/examples/index.html` 中增加链接】
+
+```html
+<!--  -->
+      <li><a href="extend">Extend</a></li>
+<!--  -->
+```
+
+【给 `examples/server.js` 添加请求处理函数】
+
+```js
+router.get('/extend/get', (req, res) => res.json(req.path))
+router.delete('/extend/delete', (req, res) => res.json(req.path))
+router.options('/extend/options', (req, res) => res.json(req.path))
+// 即使返回 req.path 作为响应数据，客户端也不会接收到。因为 head 请求没有响应体
+// res.json(req.path)
+router.head('/extend/head', (req, res) => res.end())
+router.post('/extend/post', (req, res) => res.json(req.body))
+router.put('/extend/put', (req, res) => res.json(req.body))
+router.patch('/extend/patch', (req, res) => res.json(req.body))
 ```
 
 然后在命令行运行 `npm run dev`，接着打开 chrome 浏览器，访问 `http://localhost:8080/` 即可访问我们的 demo 了，我们点到 `Extend` 目录下，通过开发者工具的 network 部分我们可以看到每个请求的发送情况。
