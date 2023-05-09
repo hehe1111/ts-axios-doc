@@ -15,7 +15,7 @@ function add(x, y) {
 }
 
 // 匿名函数
-let myAdd = function(x, y) { 
+let myAdd = function(x, y) {
   return x + y;
 }
 ```
@@ -41,7 +41,7 @@ function add(x: number, y: number): number {
   return x + y
 }
 
-let myAdd = function(x: number, y: number): number { 
+let myAdd = function(x: number, y: number): number {
   return x + y
 }
 ```
@@ -53,7 +53,7 @@ let myAdd = function(x: number, y: number): number {
 现在我们已经为函数指定了类型，下面让我们写出函数的完整类型。
 
 ```typescript
-let myAdd: (x: number, y: number) => number = 
+let myAdd: (x: number, y: number) => number =
 function(x: number, y: number): number {
   return x + y
 }
@@ -63,7 +63,7 @@ function(x: number, y: number): number {
 函数类型包含两部分：参数类型和返回值类型。 当写出完整函数类型的时候，这两部分都是需要的。 我们以参数列表的形式写出参数类型，为每个参数指定一个名字和类型。这个名字只是为了增加可读性。 我们也可以这么写：
 
 ```typescript
-let myAdd: (baseValue: number, increment: number) => number = 
+let myAdd: (baseValue: number, increment: number) => number =
 function(x: number, y: number): number {
   return x + y
 }
@@ -80,11 +80,11 @@ function(x: number, y: number): number {
 尝试这个例子的时候，你会发现如果你在赋值语句的一边指定了类型但是另一边没有类型的话，TypeScript 编译器会自动识别出类型：
 
 ```typescript
-let myAdd = function(x: number, y: number): number { 
+let myAdd = function(x: number, y: number): number {
   return x + y
 }
 
-let myAdd: (baseValue: number, increment: number) => number = 
+let myAdd: (baseValue: number, increment: number) => number =
 function(x, y) {
   return x + y
 }
@@ -251,7 +251,7 @@ interface Deck {
   suits: string[]
   cards: number[]
 
-  createCardPicker (this: Deck): () => Card
+  createCardPicker(this: Deck): () => Card
 }
 
 let deck: Deck = {
@@ -290,13 +290,13 @@ interface UIElement {
 
 ```typescript
 interface UIElement {
-  addClickListener (onclick: (this: void, e: Event) => void): void
+  addClickListener(onclick: (this: void, e: Event) => void): void
 }
 
 class Handler {
   type: string
 
-  onClickBad (this: Handler, e: Event) {
+  onClickBad(this: Handler, e: Event) {
     this.type = e.type
   }
 }
@@ -304,21 +304,21 @@ class Handler {
 let h = new Handler()
 
 let uiElement: UIElement = {
-  addClickListener () {
+  addClickListener() {
   }
 }
 
 uiElement.addClickListener(h.onClickBad) // error!
 
 ```
- 
+
 指定了 `this` 类型后，你显式声明 `onClickBad` 必须在 `Handler` 的实例上调用。 然后 TypeScript 会检测到 `addClickListener` 要求函数带有 `this: void`。 改变 `this` 类型来修复这个错误：
 
 ```typescript
 class Handler {
   type: string;
 
-  onClickBad (this: void, e: Event) {
+  onClickBad(this: void, e: Event) {
     console.log('clicked!')
   }
 }
@@ -326,7 +326,7 @@ class Handler {
 let h = new Handler()
 
 let uiElement: UIElement = {
-  addClickListener () {
+  addClickListener() {
   }
 }
 
@@ -339,7 +339,7 @@ uiElement.addClickListener(h.onClickBad)
 class Handler {
   type: string
   onClickGood = (e: Event) => {
-    this.type = e.type 
+    this.type = e.type
   }
 }
 ```

@@ -51,7 +51,7 @@ interface SquareConfig {
   width?: number
 }
 
-function createSquare (config: SquareConfig): Square {
+function createSquare(config: SquareConfig): Square {
   let newSquare = {color: 'white', area: 100}
   if (config.color) {
     newSquare.color = config.color
@@ -79,7 +79,7 @@ interface SquareConfig {
    color?: string;
    width?: number;
 }
- 
+
 function createSquare(config: SquareConfig): Square {
    let newSquare = {color: 'white', area: 100}
    if (config.clor) {
@@ -91,7 +91,7 @@ function createSquare(config: SquareConfig): Square {
    }
    return newSquare
  }
- 
+
  let mySquare = createSquare({color: 'black'})
 ```
 
@@ -146,7 +146,7 @@ interface SquareConfig {
     width?: number;
 }
 
-function createSquare (config: SquareConfig): { color: string; area: number } {
+function createSquare(config: SquareConfig): { color: string; area: number } {
   let newSquare = {color: 'white', area: 100}
   if (config.color) {
     newSquare.color = config.color
@@ -482,4 +482,3 @@ class ImageC implements SelectableControl {
 在上面的例子里，`SelectableControl` 包含了 `Control` 的所有成员，包括私有成员 `state`。 因为 `state` 是私有成员，所以只能够是 `Control` 的子类们才能实现 `SelectableControl` 接口。 因为只有 `Control` 的子类才能够拥有一个声明于`Control` 的私有成员 `state`，这对私有成员的兼容性是必需的。
 
 在 `Control` 类内部，是允许通过 `SelectableControl` 的实例来访问私有成员 `state` 的。 实际上，`SelectableControl` 接口和拥有 `select` 方法的 `Control` 类是一样的。`Button`和 `TextBox` 类是 `SelectableControl` 的子类（因为它们都继承自`Control` 并有 `select` 方法），但 `ImageC` 类并不是这样的。
-

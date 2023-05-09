@@ -142,7 +142,7 @@ import { isDate, isObject } from './util'
  *
  * 空格会被转为 +
  */
-function encode (val: string): string {
+function encode(val: string): string {
   return encodeURIComponent(val)
     .replace(/%40/g, '@')
     .replace(/%3A/gi, ':')
@@ -209,7 +209,7 @@ function encode (val: string): string {
  * // 保留 url 中已存在的参数
  * /base/get?foo=bar&bar=baz
  */
-export function buildURL (url: string, params?: any): string {
+export function buildURL(url: string, params?: any): string {
   if (!params) {
     return url
   }
@@ -265,11 +265,11 @@ export function buildURL (url: string, params?: any): string {
 ```typescript
 const toString = Object.prototype.toString
 
-export function isDate (val: any): val is Date {
+export function isDate(val: any): val is Date {
   return toString.call(val) === '[object Date]'
 }
 
-export function isObject (val: any): val is Object {
+export function isObject(val: any): val is Object {
   return val !== null && typeof val === 'object'
 }
 
@@ -282,16 +282,16 @@ export function isObject (val: any): val is Object {
 在 `index.ts` 文件中添加如下代码：
 
 ```typescript
-function axios (config: AxiosRequestConfig): void {
+function axios(config: AxiosRequestConfig): void {
   processConfig(config)
   xhr(config)
 }
 
-function processConfig (config: AxiosRequestConfig): void {
+function processConfig(config: AxiosRequestConfig): void {
   config.url = transformUrl(config)
 }
 
-function transformUrl (config: AxiosRequestConfig): string {
+function transformUrl(config: AxiosRequestConfig): string {
   const { url, params } = config
   return buildURL(url, params)
 }

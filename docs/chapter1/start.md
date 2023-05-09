@@ -4,7 +4,7 @@
 
 
 ```javascript
-function greeter (person) {
+function greeter(person) {
   return 'Hello, ' + person
 }
 
@@ -42,7 +42,7 @@ Hello, Yee
 接下来让我们看看 TypeScript 工具带来的高级功能。 给  `person` 函数的参数添加 `: string` 类型注解，如下：
 
 ```typescript
-function greeter (person: string) {
+function greeter(person: string) {
   return 'Hello, ' + person
 }
 
@@ -54,7 +54,7 @@ console.log(greeter(user))
 TypeScript 里的类型注解是一种轻量级的为函数或变量添加约束的方式。 在这个例子里，我们希望 `greeter` 函数接收一个字符串参数。 然后尝试把 `greeter` 的调用改成传入一个数组：
 
 ```typescript
-function greeter (person: string) {
+function greeter(person: string) {
   return 'Hello, ' + person
 }
 
@@ -83,7 +83,7 @@ interface Person {
   lastName: string
 }
 
-function greeter (person: Person) {
+function greeter(person: Person) {
   return 'Hello, ' + person.firstName + ' ' + person.lastName
 }
 
@@ -109,7 +109,7 @@ class User {
   firstName: string
   lastName: string
 
-  constructor (firstName: string, lastName: string) {
+  constructor(firstName: string, lastName: string) {
     this.firstName = firstName
     this.lastName = lastName
     this.fullName = firstName + ' ' + lastName
@@ -121,7 +121,7 @@ interface Person {
   lastName: string
 }
 
-function greeter (person: Person) {
+function greeter(person: Person) {
   return 'Hello, ' + person.firstName + ' ' + person.lastName
 }
 
@@ -135,7 +135,3 @@ console.log(greeter(user))
 ## 总结
 
 到这里，你已经对 TypeScript 有了一个大致的印象，那么下一章让我们来一起学习 TypeScript 的一些常用语法吧。
-
-
-
-

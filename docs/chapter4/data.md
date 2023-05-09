@@ -72,7 +72,7 @@ axios({
 ```typescript
 import { isPlainObject } from './util'
 
-export function transformRequest (data: any): any {
+export function transformRequest(data: any): any {
   if (isPlainObject(data)) {
     return JSON.stringify(data)
   }
@@ -83,7 +83,7 @@ export function transformRequest (data: any): any {
 `helpers/util.js`：
 
 ```typescript
-export function isPlainObject (val: any): val is Object {
+export function isPlainObject(val: any): val is Object {
   return toString.call(val) === '[object Object]'
 }
 ```
@@ -105,7 +105,7 @@ if (isDate(val)) {
 `helpers/util.js`
 
 ```typescript
-// export function isObject (val: any): val is Object {
+// export function isObject(val: any): val is Object {
 //   return val !== null && typeof val === 'object'
 // }
 ```
@@ -119,12 +119,12 @@ if (isDate(val)) {
 ```typescript
 import { transformRequest } from './helpers/data'
 
-function processConfig (config: AxiosRequestConfig): void {
+function processConfig(config: AxiosRequestConfig): void {
   config.url = transformURL(config)
   config.data = transformRequestData(config)
 }
 
-function transformRequestData (config: AxiosRequestConfig): any {
+function transformRequestData(config: AxiosRequestConfig): any {
   return transformRequest(config.data)
 }
 ```

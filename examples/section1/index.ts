@@ -1,8 +1,8 @@
-function isFunction (val: any): boolean {
+function isFunction(val: any): boolean {
   return toString.call(val) === '[object Function]'
 }
 //
-// function extend<T, U> (to: T & U, from: U, context?: object): T & U {
+// function extend<T, U>(to: T & U, from: U, context?: object): T & U {
 //   for (const key in from) {
 //     const val = from[key] as any
 //     if (context && isFunction(val)) {

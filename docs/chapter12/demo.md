@@ -26,20 +26,20 @@
 
   export default Vue.extend({
     name: 'HelloWorld',
-    data () {
+    data() {
       return {
         question: '',
         answer: 'I cannot give you an answer until you ask a question!'
       }
     },
-    created () {
+    created() {
       this.debouncedGetAnswer = _.debounce(this.getAnswer, 500)
     },
     methods: {
-      debouncedGetAnswer () {
+      debouncedGetAnswer() {
         // do nothing
       },
-      getAnswer () {
+      getAnswer() {
         if (this.question.indexOf('?') === -1) {
           this.answer = 'Questions usually contain a question mark. -)'
           return

@@ -59,7 +59,7 @@ dog.move(10)
 ```typescript
 class Animal {
   name: string
-  constructor(name: string) { 
+  constructor(name: string) {
     this.name = name
   }
   move(distance: number = 0) {
@@ -68,7 +68,7 @@ class Animal {
 }
 
 class Snake extends Animal {
-  constructor(name: string) { 
+  constructor(name: string) {
     super(name)
   }
   move(distance: number = 5) {
@@ -134,7 +134,7 @@ class Animal {
 ```typescript
 class Animal {
   private name: string
-  constructor(name: string) { 
+  constructor(name: string) {
     this.name = name
   }
 }
@@ -151,20 +151,20 @@ TypeScript 使用的是结构性类型系统。 当我们比较两种不同的�
 ```typescript
 class Animal {
   private name: string
-  constructor(name: string) { 
-    this.name = name 
+  constructor(name: string) {
+    this.name = name
   }
 }
 
 class Rhino extends Animal {
-  constructor() { 
+  constructor() {
     super('Rhino')
   }
 }
 
 class Employee {
   private name: string
-  constructor(name: string) { 
+  constructor(name: string) {
     this.name = name
   }
 }
@@ -186,8 +186,8 @@ animal = employee // 错误: Animal 与 Employee 不兼容.
 ```typescript
 class Person {
   protected name: string
-  constructor(name: string) { 
-    this.name = name 
+  constructor(name: string) {
+    this.name = name
   }
 }
 
@@ -198,7 +198,7 @@ class Employee extends Person {
     super(name)
     this.department = department
   }
-  
+
   getElevatorPitch() {
     return `Hello, my name is ${this.name} and I work in ${this.department}.`
   }
@@ -335,7 +335,7 @@ class Grid {
 
   scale: number
 
-  constructor (scale: number) {
+  constructor(scale: number) {
     this.scale = scale
   }
 
@@ -455,7 +455,7 @@ console.log(greeter.greet());
 ```typescript
 class Greeter {
   static standardGreeting = 'Hello, there'
-  
+
   greeting: string
 
   constructor(message?: string) {
@@ -502,5 +502,3 @@ interface Point3d extends Point {
 
 let point3d: Point3d = {x: 1, y: 2, z: 3}
 ```
-
-
