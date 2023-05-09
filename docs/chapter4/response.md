@@ -108,7 +108,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 }
 ```
 
-注意，我们这里还判断了如果 `config` 中配置了 `responseType`，我们把它设置到 `request.responseType` 中。在 `onreadystatechange` 事件函数中，我们构造了 `AxiosResponse` 类型的 `reponse` 对象，并把它 `resolve` 出去。
+注意，我们这里还判断了如果 `config` 中配置了 `responseType`，我们把它设置到 `request.responseType` 中。在 `onreadystatechange` 事件函数中，我们构造了 `AxiosResponse` 类型的 `response` 对象，并把它 `resolve` 出去。
 
 修改了 `xhr` 函数，我们同样也要对应修改 `axios` 函数：
 
@@ -128,36 +128,46 @@ function axios(config: AxiosRequestConfig): AxiosPromise {
 我们在 `examples/base/app.ts` 文件中添加 2 段代码：
 
 ```typescript
-axios({
-  method: 'post',
-  url: '/base/post',
-  data: {
-    a: 1,
-    b: 2
-  }
-}).then((res) => {
-  console.log(res)
-  // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
-  // 其 data 属性也是一个字符串
-  // 因为请求没有指定期望服务器返回的数据类型，因此服务器默认返回的是字符串
-  // 尽管点开请求时，在 Preview 面板显示的是一个对象
-  // 应该是 Chrome 对 JSON 对象字符串做了优化
+createButton('处理响应：未显式指定 responseType', () => {
+  axios({
+    method: 'post',
+    url: '/base/post',
+    data: {
+      a: 1,
+      b: 2
+    }
+  }).then((res) => {
+    console.log(res)
+    // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
+    // 其 data 属性也是一个字符串
+    // 因为请求没有指定期望服务器返回的数据类型，因此服务器默认返回的是字符串
+    // 【在 /src/xhr.ts 的 request.onreadystatechange 函数中打出 responseType 的值，是 undefined】
+    // 【data 即 responseData 因此是取 request.responseText，typeof request.responseText 确实是 string】
+    // 尽管点开请求时，在 Preview 面板显示的是一个对象
+    // 应该是 Chrome 对 JSON 对象字符串做了优化
+  })
 })
 
-axios({
-  method: 'post',
-  url: '/base/post',
-  responseType: 'json',
-  data: {
-    a: 3,
-    b: 4
-  }
-}).then((res) => {
-  console.log(res)
-  // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
-  // 其 data 属性则按请求的 responseType 要求，服务器返回一个对象
+createButton('处理响应：显式指定 responseType: "json"', () => {
+  axios({
+    method: 'post',
+    url: '/base/post',
+    responseType: 'json',
+    data: {
+      a: 3,
+      b: 4
+    }
+  }).then((res) => {
+    console.log(res)
+    // 浏览器控制台里输出一个对象，其 headers 属性是一个字符串
+    // 其 data 属性则按请求的 responseType 要求，服务器返回一个对象
+  })
 })
 ```
+
+![](./_images/04.png)
+
+![](./_images/05.png)
 
 我们打开浏览器运行 demo，看一下结果，发现我们可以正常 log 出这个 `res` 变量，它包含 `AxiosResponse` 类型中定义的那些属性，不过我们发现 2 个小问题：第一个是 `headers` 属性是一个字符串，我们需要把它解析成对象类型；第二个是在第一个请求中，得到的数据是一个 JSON 字符串，我们也需要把它转换成对象类型。
 
