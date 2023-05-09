@@ -122,26 +122,21 @@ function handleResponse(response: AxiosResponse) {
 
 ```typescript
 import axios from '../../src/index'
+import createButton from '../create-button'
 
-axios({
-  method: 'get',
-  url: '/error/get1'
-}).then((res) => {
-  console.log(res)
-}).catch((e) => {
-  console.log(e)
+// 有网的情况下，服务器会返回 404
+createButton('错误：请求不存在的路径', () => {
+  axios({
+    method: 'get',
+    url: '/error/get1'
+  }).then((res) => {
+    console.log(res)
+  }).catch((e) => {
+    console.log(e)
+  })
 })
 
-axios({
-  method: 'get',
-  url: '/error/get'
-}).then((res) => {
-  console.log(res)
-}).catch((e) => {
-  console.log(e)
-})
-
-setTimeout(() => {
+createButton('错误：接口偶发 500 报错', () => {
   axios({
     method: 'get',
     url: '/error/get'
@@ -150,16 +145,31 @@ setTimeout(() => {
   }).catch((e) => {
     console.log(e)
   })
-}, 5000)
+})
 
-axios({
-  method: 'get',
-  url: '/error/timeout',
-  timeout: 2000
-}).then((res) => {
-  console.log(res)
-}).catch((e) => {
-  console.log(e.message)
+createButton('错误：接口偶发 500 报错。5 秒后请求', () => {
+  setTimeout(() => {
+    axios({
+      method: 'get',
+      url: '/error/get'
+    }).then((res) => {
+      console.log(res)
+    }).catch((e) => {
+      console.log(e)
+    })
+  }, 5000)
+})
+
+createButton('错误：超时', () => {
+  axios({
+    method: 'get',
+    url: '/error/timeout',
+    timeout: 2000
+  }).then((res) => {
+    console.log(res)
+  }).catch((e) => {
+    console.log(e.message)
+  })
 })
 ```
 
@@ -186,6 +196,16 @@ router.get('/error/timeout', function(req, res) {
 })
 ```
 
+且在 `/examples/index.html` 中增加链接
+
+```html
+<!--  -->
+      <li><a href="error">Error</a></li>
+<!--  -->
+```
+
 然后在命令行运行 `npm run dev`，接着打开 chrome 浏览器，访问 `http://localhost:8080/` 即可访问我们的 demo 了，我们点到 `Error` 目录下，通过开发者工具的 network 部分我们可以看到不同的错误情况。
+
+【如果要测试 `request.onerror`，可以通过控制台断开网络来测试】
 
 至此我们对各种错误都做了处理，并把它们抛给了程序应用方，让他们对错误可以做进一步的处理。但是这里我们的错误都仅仅是简单的 Error 实例，只有错误文本信息，并不包含是哪个请求、请求的配置、响应对象等其它信息。那么下一节课，我们会对错误信息做增强。

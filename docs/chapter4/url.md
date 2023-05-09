@@ -324,14 +324,7 @@ function transformUrl(config: AxiosRequestConfig): string {
 
 ```typescript
 import axios from '../../src/index'
-
-const createButton = (text: string, onClick: () => void): void => {
-  const button = document.createElement('button')
-  button.innerText = text
-  button.setAttribute('style', 'display: block; margin-bottom: 10px;')
-  button.addEventListener('click', onClick)
-  document.body.appendChild(button)
-}
+import createButton from '../create-button'
 
 createButton('转换数组', () => {
   axios({
@@ -406,6 +399,18 @@ createButton('保留 url 中已存在的参数', () => {
     }
   })
 })
+```
+
+【`/examples/create-button.ts`】
+
+```ts
+export default function createButton (text: string, onClick: () => void): void {
+  const button = document.createElement('button')
+  button.innerText = text
+  button.setAttribute('style', 'display: block; margin-bottom: 10px;')
+  button.addEventListener('click', onClick)
+  document.body.appendChild(button)
+}
 ```
 
 接着在 `server.js` 添加新的接口路由：
