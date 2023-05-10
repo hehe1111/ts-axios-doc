@@ -61,7 +61,7 @@ export interface AxiosInstance extends Axios {
     }
     return dispatchRequest(config)
   }
-``` 
+```
 
 我们把 `request` 函数的参数改成 2 个，`url` 和 `config` 都是 `any` 类型，`config` 还是可选参数。
 
@@ -74,19 +74,23 @@ export interface AxiosInstance extends Axios {
 `examples/extend/app.ts`：
 
 ```typescript
-axios({
-  url: '/extend/post',
-  method: 'post',
-  data: {
-    msg: 'hi'
-  }
+createButton('axios 函数重载：1（改造 axios.request 函数）', () => {
+  axios({
+    url: '/extend/post',
+    method: 'post',
+    data: {
+      msg: 'hi'
+    }
+  })
 })
 
-axios('/extend/post', {
-  method: 'post',
-  data: {
-    msg: 'hello'
-  }
+createButton('axios 函数重载：2（改造 axios.request 函数）', () => {
+  axios('/extend/post', {
+    method: 'post',
+    data: {
+      msg: 'hello'
+    }
+  })
 })
 ```
 
