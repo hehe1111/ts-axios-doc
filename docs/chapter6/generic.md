@@ -136,7 +136,7 @@ async function test() {
   }
 }
 
-test()
+createButton('响应数据支持泛型', test)
 ```
 
 当我们调用 `getUser<User>` 的时候，相当于调用了 `axios<ResponseData<User>>`，也就是我们传入给 `axios` 函数的类型 `T` 为 `ResponseData<User>`；相当于返回值 `AxiosPromise<T>` 的 `T`，实际上也是 `Promise<AxiosResponse<T>>` 中的 `T` 的类型是 `ResponseData<User>`，所以响应数据中的 `data` 类型就是 `ResponseData<User>`，也就是如下数据结构：
