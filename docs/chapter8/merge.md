@@ -416,20 +416,23 @@ function processConfig(config: AxiosRequestConfig): void {
 ```typescript
 import axios from '../../src/index'
 import qs from 'qs'
+import createButton from '../create-button'
 
 axios.defaults.headers.common['test2'] = 123
 
-axios({
-  url: '/config/post',
-  method: 'post',
-  data: qs.stringify({
-    a: 1
-  }),
-  headers: {
-    test: '321'
-  }
-}).then((res) => {
-  console.log(res.data)
+createButton('合并配置', () => {
+  axios({
+    url: '/config/post',
+    method: 'post',
+    data: qs.stringify({
+      a: 1
+    }),
+    headers: {
+      test: '321'
+    }
+  }).then((res) => {
+    console.log(res.data)
+  })
 })
 ```
 

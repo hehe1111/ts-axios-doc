@@ -74,7 +74,7 @@ const defaults: AxiosRequestConfig = {
 }
 ```
 
-我们把之前对请求数据和响应数据的处理逻辑，放到了默认配置中，也就是默认处理逻辑。
+我们**把之前对请求数据和响应数据的处理逻辑，放到了默认配置中**，也就是默认处理逻辑。
 
 ## transform 逻辑重构
 
@@ -125,28 +125,40 @@ function transformResponseData(res: AxiosResponse): AxiosResponse {
 }
 ```
 
-我们把对请求数据的处理和对响应数据的处理改成使用 `transform` 函数实现，并把配置中的 `transformRequest` 及 `transformResponse` 分别传入。
+我们**把对请求数据的处理和对响应数据的处理改成使用 `transform` 函数实现**，并把配置中的 `transformRequest` 及 `transformResponse` 分别传入。
 
 ## demo 编写
 
+`/examples/config/app.ts`
+
 ```typescript
-axios({
-  transformRequest: [(function(data) {
-    return qs.stringify(data)
-  }), ...(axios.defaults.transformRequest as AxiosTransformer[])],
-  transformResponse: [...(axios.defaults.transformResponse as AxiosTransformer[]), function(data) {
-    if (typeof data === 'object') {
-      data.b = 2
+createButton('transformRequest & transformResponse', () => {
+  axios({
+    transformRequest: [
+      function (data) {
+        return qs.stringify(data)
+      },
+      // 注意下面这句
+      ...(axios.defaults.transformRequest as AxiosTransformer[])
+    ],
+    transformResponse: [
+      // 注意下面这句
+      ...(axios.defaults.transformResponse as AxiosTransformer[]),
+      function (data) {
+        if (typeof data === 'object') {
+          data.b = 2
+        }
+        return data
+      }
+    ],
+    url: '/config/post',
+    method: 'post',
+    data: {
+      a: 1
     }
-    return data
-  }],
-  url: '/config/post',
-  method: 'post',
-  data: {
-    a: 1
-  }
-}).then((res) => {
-  console.log(res.data)
+  }).then((res) => {
+    console.log(res.data)
+  })
 })
 ```
 
@@ -155,4 +167,3 @@ axios({
 因为之前我们实现了配置的合并，而且我们传入的 `transformRequest` 和 `transformResponse` 遵循默认合并策略，它们会覆盖默认的值。
 
 至此，我们就实现了请求和响应的配置化。到目前为止，我们的 axios 都是一个单例，一旦我们修改了 axios 的默认配置，会影响所有的请求。官网提供了一个 `axios.create` 的工厂方法允许我们创建一个新的 `axios` 实例，同时允许我们传入新的配置和默认配置合并，并做为新的默认配置。下面一节课我们就来实现这个 feature。
-
