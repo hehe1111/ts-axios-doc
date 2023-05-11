@@ -44,6 +44,17 @@ const methodsNoData = ['delete', 'get', 'head', 'options']
 methodsNoData.forEach(method => {
   defaults.headers[method] = {}
 })
+// 相当于
+// {
+//   // ...
+//   headers: {
+//     // ...
+//     delete: {},
+//     get: {},
+//     head: {},
+//     options: {},
+//   }
+// }
 
 const methodsWithData = ['post', 'put', 'patch']
 
@@ -52,6 +63,22 @@ methodsWithData.forEach(method => {
     'Content-Type': 'application/x-www-form-urlencoded'
   }
 })
+// 相当于
+// {
+//   // ...
+//   headers: {
+//     // ...
+//     post: {
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//     put: {
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//     patch: {
+//       'Content-Type': 'application/x-www-form-urlencoded'
+//     },
+//   }
+// }
 
 export default defaults
 ```
@@ -77,8 +104,8 @@ export default class Axios {
     }
   }
   // ...
-}  
-``` 
+}
+```
 
 我们给 `Axios` 类添加一个 `defaults` 成员属性，并且让 `Axios` 的构造函数接受一个 `initConfig` 对象，把 `initConfig` 赋值给 `this.defaults`。
 
@@ -92,13 +119,14 @@ function createInstance(config: AxiosRequestConfig): AxiosStatic {
   const instance = Axios.prototype.request.bind(context)
 
   // extend(instance, Axios.prototype, context)
-
   extend(instance, context)
 
   return instance as AxiosStatic
 }
 
 const axios = createInstance(defaults)
+
+export default axios
 ```
 
 这样我们就可以在执行 `createInstance` 创建 `axios` 对象的时候，把默认配置传入了。
@@ -152,6 +180,11 @@ merged = {
 ### 合并方法
 
 ```typescript
+import { deepMerge, isPlainObject } from "../helpers/util"
+import { AxiosRequestConfig } from "../types"
+
+const strategies: Record<string, any> = {}
+
 export default function mergeConfig(
   config1: AxiosRequestConfig,
   config2?: AxiosRequestConfig
@@ -173,8 +206,8 @@ export default function mergeConfig(
   }
 
   function mergeField(key: string): void {
-    const strat = strats[key] || defaultStrat
-    config[key] = strat(config1[key], config2![key])
+    const strategy = strategies[key] || defaultStrategy
+    config[key] = strategy(config1[key], config2![key])
   }
 
   return config
@@ -200,8 +233,10 @@ export interface AxiosRequestConfig {
 
 这是大部分属性的合并策略，如下：
 
+`core/mergeConfig.ts`
+
 ```typescript
-function defaultStrat(val1: any, val2: any): any {
+function defaultStrategy(val1: any, val2: any): any {
   return typeof val2 !== 'undefined' ? val2 : val1
 }
 ```
@@ -212,17 +247,19 @@ function defaultStrat(val1: any, val2: any): any {
 
 对于一些属性如 `url`、`params`、`data`，合并策略如下：
 
+`core/mergeConfig.ts`
+
 ```typescript
-function fromVal2Strat(val1: any, val2: any): any {
+function fromVal2Strategy(val1: any, val2: any): any {
   if (typeof val2 !== 'undefined') {
     return val2
   }
 }
 
-const stratKeysFromVal2 = ['url', 'params', 'data']
+const strategyKeysFromVal2 = ['url', 'params', 'data']
 
-stratKeysFromVal2.forEach(key => {
-  strats[key] = fromVal2Strat
+strategyKeysFromVal2.forEach(key => {
+  strategies[key] = fromVal2Strategy
 })
 ```
 
@@ -232,8 +269,10 @@ stratKeysFromVal2.forEach(key => {
 
 对于一些属性如 `headers`，合并策略如下：
 
+`core/mergeConfig.ts`
+
 ```typescript
-function deepMergeStrat(val1: any, val2: any): any {
+function deepMergeStrategy(val1: any, val2: any): any {
   if (isPlainObject(val2)) {
     return deepMerge(val1, val2)
   } else if (typeof val2 !== 'undefined') {
@@ -245,12 +284,13 @@ function deepMergeStrat(val1: any, val2: any): any {
   }
 }
 
-const stratKeysDeepMerge = ['headers']
+const strategyKeysDeepMerge = ['headers']
 
-stratKeysDeepMerge.forEach(key => {
-  strats[key] = deepMergeStrat
+strategyKeysDeepMerge.forEach(key => {
+  strategies[key] = deepMergeStrategy
 })
 ```
+
 `helpers/util.ts`：
 
 ```typescript
@@ -282,6 +322,8 @@ export function deepMerge(...objs: any[]): any {
 
 最后我们在 `request` 方法里添加合并配置的逻辑：
 
+`core/Axios.ts`
+
 ```typescript
 config = mergeConfig(this.defaults, config)
 ```
@@ -290,8 +332,8 @@ config = mergeConfig(this.defaults, config)
 
 经过合并后的配置中的 `headers` 是一个复杂对象，多了 `common`、`post`、`get` 等属性，而这些属性中的值才是我们要真正添加到请求 `header` 中的。
 
- 举个例子：
- 
+举个例子：
+
 ```typescript
 headers: {
   common: {
@@ -316,7 +358,6 @@ headers: {
 
 接下来我们实现 `flattenHeaders` 方法。
 
-
 `helpers/header.ts`：
 
 ```typescript
@@ -336,7 +377,7 @@ export function flattenHeaders(headers: any, method: Method): any {
 }
 ```
 
-我们可以通过 `deepMerge` 的方式把 `common`、`post` 的属性拷贝到 `headers` 这一级，然后再把 `common`、`post` 这些属性删掉。 
+我们可以通过 `deepMerge` 的方式把 `common`、`post` 的属性拷贝到 `headers` 这一级，然后再把 `common`、`post` 这些属性删掉。
 
 然后我们在真正发送请求前执行这个逻辑。
 
@@ -390,6 +431,23 @@ axios({
 }).then((res) => {
   console.log(res.data)
 })
+```
+
+`/examples/server.js` 中添加请求处理函数
+
+```js
+router.post('/config/post', (req, res) => res.json({
+  headers: req.headers,
+  body: req.body
+}))
+```
+
+`/examples/index.html` 添加链接
+
+```html
+<!--  -->
+      <li><a href="config">Config</a></li>
+<!--  -->
 ```
 
 这个例子中我们额外引入了 `qs` 库，它是一个查询字符串解析和字符串化的库。
