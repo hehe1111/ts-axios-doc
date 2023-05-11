@@ -47,6 +47,9 @@ export interface AxiosStatic extends AxiosInstance{
 `axios.ts`：
 
 ```typescript
+// ...
+import mergeConfig from './core/mergeConfig'
+
 function createInstance(config: AxiosRequestConfig): AxiosStatic {
   const context = new Axios(config)
   const instance = Axios.prototype.request.bind(context)
@@ -55,9 +58,14 @@ function createInstance(config: AxiosRequestConfig): AxiosStatic {
 
   return instance as AxiosStatic
 }
+
+const axios = createInstance(defaults)
+
 axios.create = function create(config) {
   return createInstance(mergeConfig(defaults, config))
 }
+
+export default axios
 ```
 
 内部调用了 `createInstance` 函数，并且把参数 `config` 与 `defaults` 合并，作为新的默认配置。注意这里我们需要 `createInstance` 函数的返回值类型为 `AxiosStatic`。
@@ -66,34 +74,36 @@ axios.create = function create(config) {
 
 ```typescript
 const instance = axios.create({
-  transformRequest: [(function(data) {
-    return qs.stringify(data)
-  }), ...(axios.defaults.transformRequest as AxiosTransformer[])],
-  transformResponse: [...(axios.defaults.transformResponse as AxiosTransformer[]), function(data) {
-    if (typeof data === 'object') {
-      data.b = 2
+  transformRequest: [
+    function (data) {
+      return qs.stringify(data)
+    },
+    ...(axios.defaults.transformRequest as AxiosTransformer[])
+  ],
+  transformResponse: [
+    ...(axios.defaults.transformResponse as AxiosTransformer[]),
+    function (data) {
+      if (typeof data === 'object') {
+        data.b = 2
+      }
+      return data
     }
-    return data
-  }]
+  ]
 })
 
-instance({
-  url: '/config/post',
-  method: 'post',
-  data: {
-    a: 1
-  }
-}).then((res) => {
-  console.log(res.data)
+createButton('Demo 3：支持通过 create 方法新建新的 axios 实例', () => {
+  instance({
+    url: '/config/post',
+    method: 'post',
+    data: {
+      a: 1
+    }
+  }).then((res) => {
+    console.log(res.data)
+  })
 })
 ```
 
 我们对上节课的示例做了小小的修改，通过 `axios.create` 方法创建一个新的实例 `instance`，并传入了 `transformRequest` 和 `transformResponse` 的配置修改了默认配置，然后通过 `instance` 发送请求，效果和之前是一样的。
 
 至此我们实现了 `axios.create` 静态接口的扩展，整个 `ts-axios` 的配置化也告一段落。官方 axios 库还支持了对请求取消的能力，在发送请求前以及请求发送出去未响应前都可以取消该请求。下一章我们就来实现这个 feature。
-
-
-
-
-
-
