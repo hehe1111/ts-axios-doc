@@ -57,8 +57,7 @@ axios.interceptors.request.eject(myInterceptor)
 
 在这个 Promise 链的执行过程中，请求拦截器 `resolve` 函数处理的是 `config` 对象，而相应拦截器 `resolve` 函数处理的是 `response` 对象。
 
-在了解了拦截器工作流程后，我们先要创建一个拦截器管理类，允许我们去添加
-删除和遍历拦截器。
+在了解了拦截器工作流程后，我们先要创建一个拦截器管理类，允许我们去添加、删除和遍历拦截器。
 
 ## 拦截器管理类实现
 
@@ -68,14 +67,15 @@ axios.interceptors.request.eject(myInterceptor)
 
 ### 接口定义
 
-`types/index.ts`：
+`/src/core/InterceptorManager.ts`：
 
 ```typescript
-export interface AxiosInterceptorManager<T> {
-  use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number
+// 没用到，暂时先注释
+// export interface AxiosInterceptorManager<T> {
+//   use(resolved: ResolvedFn<T>, rejected?: RejectedFn): number
 
-  eject(id: number): void
-}
+//   eject(id: number): void
+// }
 
 export interface ResolvedFn<T=any> {
   (val: T): T | Promise<T>
@@ -84,20 +84,20 @@ export interface ResolvedFn<T=any> {
 export interface RejectedFn {
   (error: any): any
 }
+
+export interface Interceptor<T> {
+  resolved: ResolvedFn<T>
+  rejected?: RejectedFn
+}
 ```
 
 这里我们定义了 `AxiosInterceptorManager` 泛型接口，因为对于 `resolve` 函数的参数，请求拦截器和响应拦截器是不同的。
 
 ### 代码实现
 
+`/src/core/InterceptorManager.ts`：
+
 ```typescript
-import { ResolvedFn, RejectedFn } from '../types'
-
-interface Interceptor<T> {
-  resolved: ResolvedFn<T>
-  rejected?: RejectedFn
-}
-
 export default class InterceptorManager<T> {
   private interceptors: Array<Interceptor<T> | null>
 
@@ -137,11 +137,27 @@ export default class InterceptorManager<T> {
 
 当我们实现好拦截器管理类，接下来就是在 `Axios` 中定义一个 `interceptors` 属性，它的类型如下：
 
-```typescript
-interface Interceptors {
+`/src/types/index.ts`
+
+```ts
+import InterceptorManager from "../core/InterceptorManager"
+
+export interface Interceptors {
   request: InterceptorManager<AxiosRequestConfig>
   response: InterceptorManager<AxiosResponse>
 }
+
+export interface Axios {
+  // ...
+  interceptors: Interceptors
+}
+```
+
+`/src/core/Axios.ts`
+
+```typescript
+import { /*...*/, Interceptors } from '../types'
+import InterceptorManager from './InterceptorManager'
 
 export default class Axios {
   interceptors: Interceptors
@@ -159,13 +175,33 @@ export default class Axios {
 
 接下来，我们修改 `request` 方法的逻辑，添加拦截器链式调用的逻辑：
 
-`core/Axios.ts`：
+`/src/types/index.ts`
 
-```typescript
-interface PromiseChain {
+```ts
+import type {
+  ResolvedFn,
+  RejectedFn,
+  Interceptor,
+  // AxiosInterceptorManager,
+} from '../core/InterceptorManager'
+
+export type {
+  ResolvedFn,
+  RejectedFn,
+  Interceptor,
+  // AxiosInterceptorManager,
+}
+
+export interface PromiseChain {
   resolved: ResolvedFn | ((config: AxiosRequestConfig) => AxiosPromise)
   rejected?: RejectedFn
 }
+```
+
+`/src/core/Axios.ts`：
+
+```typescript
+import { /*...*/, PromiseChain } from '../types'
 
 request(url: any, config?: any): AxiosPromise {
   if (typeof url === 'string') {
@@ -266,6 +302,22 @@ axios({
 }).then((res) => {
   console.log(res.data)
 })
+```
+
+`/examples/server.js` 添加一个请求处理函数
+
+```js
+// ...
+router.get('/interceptor/get', (req, res) => res.json('hello'))
+// ...
+```
+
+`/examples/index.html` 添加一个新链接
+
+```html
+<!--  -->
+      <li><a href="interceptor">Interceptor</a></li>
+<!--  -->
 ```
 
 该 demo 我们添加了 3 个请求拦截器，添加了 3 个响应拦截器并删除了第二个。运行该 demo 我们通过浏览器访问，我们发送的请求添加了一个 `test` 的请求 header，它的值是 `321`；我们的响应数据返回的是 `hello`，经过响应拦截器的处理，最终我们输出的数据是 `hello13`。
