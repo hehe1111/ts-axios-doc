@@ -137,15 +137,40 @@ app.use(express.static(__dirname, {
 }))
 ```
 
-`examples/more/app.ts`：
+`examples/more-xsrf/index.html`：
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>More example</title>
+  </head>
+  <body>
+    <script src="/__build__/more-xsrf.js"></script>
+  </body>
+</html>
+```
+
+`examples/more-xsrf/app.ts`：
 
 ```typescript
+import axios from "../../src/axios"
+
 const instance = axios.create({
   xsrfCookieName: 'XSRF-TOKEN-D',
   xsrfHeaderName: 'X-XSRF-TOKEN-D'
 })
 
 instance.get('/more/get').then(res => console.log(res.config.headers))
+```
+
+`examples/index.html`
+
+```html
+<!--  -->
+      <li><a href="more-xsrf">More: XSRF/CSRF</a></li>
+<!--  -->
 ```
 
 在访问页面的时候，服务端通过 `set-cookie` 往客户端种了 `key` 为 `XSRF-TOKEN-D`，值为 `1234abc` 的 `cookie`，作为 `xsrf` 的 `token` 值。
