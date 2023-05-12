@@ -81,6 +81,13 @@ if (isFormData(data)) {
 我们发现，`xhr` 函数内部随着需求越来越多，代码也越来越臃肿，我们可以把逻辑梳理一下，把内部代码做一层封装优化。
 
 ```typescript
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from '../types'
+import { parseHeaders } from '../helpers/headers'
+import { createError } from '../helpers/error'
+import { isURLSameOrigin } from '../helpers/url'
+import cookie from '../helpers/cookie'
+import { isFormData } from '../helpers/util'
+
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
     const {
@@ -95,7 +102,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       xsrfCookieName,
       xsrfHeaderName,
       onDownloadProgress,
-      onUploadProgress
+      onUploadProgress,
     } = config
 
     const request = new XMLHttpRequest()
@@ -132,6 +139,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
           return
         }
 
+        // 当出现网络错误或者超时错误的时候，该值都为 0
         if (request.status === 0) {
           return
         }
@@ -169,16 +177,33 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       }
     }
 
-    function processHeaders(): void {
-      if (isFormData(data)) {
-        delete headers['Content-Type']
+    function handleResponse(response: AxiosResponse): void {
+      if (response.status >= 200 && response.status < 300) {
+        resolve(response)
+      } else {
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            null,
+            request,
+            response
+          )
+        )
       }
+    }
 
+    function processHeaders(): void {
       if ((withCredentials || isURLSameOrigin(url!)) && xsrfCookieName) {
         const xsrfValue = cookie.read(xsrfCookieName)
         if (xsrfValue) {
           headers[xsrfHeaderName!] = xsrfValue
         }
+      }
+
+      if (isFormData(data)) {
+        // 如果请求的数据是 FormData 类型，让浏览器自动根据请求数据设置 Content-Type
+        delete headers['Content-Type']
       }
 
       Object.keys(headers).forEach(name => {
@@ -196,22 +221,6 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
           request.abort()
           reject(reason)
         })
-      }
-    }
-
-    function handleResponse(response: AxiosResponse): void {
-      if (response.status >= 200 && response.status < 300) {
-        resolve(response)
-      } else {
-        reject(
-          createError(
-            `Request failed with status code ${response.status}`,
-            config,
-            null,
-            request,
-            response
-          )
-        )
       }
     }
   })
@@ -242,7 +251,7 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 <head>
   <meta charset="utf-8">
   <title>More example</title>
-  <link rel="stylesheet" type="text/css" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"/>
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/bootstrap@3.2.0/dist/css/bootstrap.min.css"/>
 </head>
 <body>
 <h1>file download</h1>
@@ -349,6 +358,8 @@ npm i connect-multiparty -D
 
 ```javascript
 const multipart = require('connect-multiparty')
+const path = require('path')
+
 app.use(multipart({
   uploadDir: path.resolve(__dirname, 'upload-file')
 }))
@@ -366,7 +377,7 @@ router.post('/more/upload', function(req, res) {
 为了保证代码正常运行，我们还需要在 `examples/webpack.config.js` 中添加 `css-loader` 和 `style-loader`，不要忘记先安装它们。
 
 ```bash
-npm i css-loader style-loader -D
+npm i css-loader@5.0.1 style-loader@2.0.0 -D
 ```
 
 ```js
@@ -381,6 +392,14 @@ module.exports = {
     ]
   }
 }
+```
+
+`examples/index.html`
+
+```html
+<!--  -->
+      <li><a href="more-upload-download">More: upload & download</a></li>
+<!--  -->
 ```
 
 至此，`ts-axios` 支持了上传下载进度事件的回调函数的配置，用户可以通过配置这俩函数实现对下载进度和上传进度的监控。下一节课我们来实现 http 的认证授权功能。
