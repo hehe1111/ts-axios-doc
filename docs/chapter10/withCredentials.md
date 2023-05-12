@@ -43,7 +43,7 @@ if (withCredentials) {
     <title>More example</title>
   </head>
   <body>
-    <script src="/__build__/more.js"></script>
+    <script src="/__build__/more-with-credentials.js"></script>
   </body>
 </html>
 ```
@@ -52,22 +52,45 @@ if (withCredentials) {
 
 ```typescript
 import axios from '../../src/index'
+import createButton from '../create-button'
 
-document.cookie = 'a=b'
+// path 需要声明，否则 cookie 不会被带上，设置为 /，则请求 /a/b 子路径时也会带上该 cookie
+// If not specified, it defaults to the current path of the current document location.
+// https://developer.mozilla.org/en-US/docs/Web/API/Document/cookie
+// https://wangdoc.com/javascript/bom/cookie#domainpath
+document.cookie = 'a=b; path=/'
 
-axios.get('/more/get').then(res => {
-  console.log(res)
+createButton('同源请求', () => {
+  axios.get('/more/get').then(res => {
+    console.log(res)
+  })
 })
 
-axios.post('http://127.0.0.1:8088/more/server2', { }, {
-  withCredentials: true
-}).then(res => {
-  console.log(res)
+createButton('跨域请求，配置 withCredentials: true', () => {
+  axios.post('http://127.0.0.1:8088/more/server2', {}, {
+    withCredentials: true
+  }).then(res => {
+    console.log(res)
+  })
 })
 ```
 
+`/examples/index.html`
+
+```html
+<!--  -->
+      <li><a href="more-with-credentials">More: withCredentials</a></li>
+<!--  -->
+```
+
+`/examples/server.js`
+
 ```js
-// server.js
+const cookieParser = require('cookie-parser')
+// ...
+app.use(cookieParser())
+// ...
+
 registerMoreRoutes()
 
 function registerMoreRoutes() {
@@ -110,7 +133,9 @@ router.options('/more/server2', function(req, res) {
 app.use(router)
 
 const port = 8088
-module.exports = app.listen(port)
+module.exports = app.listen(port, () => {
+  console.log(`Server listening on http://localhost:${port}, Ctrl+C to stop`)
+})
 ```
 
 这里需要安装一下 `cookie-parser` 插件，用于请求发送的 cookie。
