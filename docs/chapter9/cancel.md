@@ -103,10 +103,10 @@ export interface CancelExecutor {
 我们单独创建 `cancel` 目录来管理取消相关的代码，在 `cancel` 目录下创建 `CancelToken.ts` 文件：
 
 ```typescript
-import { CancelExecutor } from '../types'
+import { CancelExecutor } from '../../types'
 
 interface ResolvePromise {
-  (reason?: string): void
+  (reason: string): void
 }
 
 export default class CancelToken {
@@ -124,11 +124,12 @@ export default class CancelToken {
         return
       }
       this.reason = message
-      resolvePromise(this.reason)
+      resolvePromise(this.reason!)
     })
   }
 }
 ```
+
 在 `CancelToken` 构造函数内部，实例化一个 `pending` 状态的 Promise 对象，然后用一个 `resolvePromise` 变量指向 `resolve` 函数。接着执行 `executor` 函数，传入一个 `cancel` 函数，在 `cancel` 函数内部，会调用 `resolvePromise` 把 Promise 对象从 `pending` 状态变为 `resolved` 状态。
 
 接着我们在 `xhr.ts` 中插入一段取消请求的逻辑。
@@ -198,6 +199,8 @@ export default class CancelToken {
 
 ### 接口定义
 
+`types/index.ts`：
+
 ```typescript
 export interface Cancel {
   message?: string
@@ -220,7 +223,7 @@ export interface AxiosStatic extends AxiosInstance {
 
 ### 代码实现
 
-我在 `cancel` 目录下创建 `Cancel.ts` 文件。
+在 `cancel` 目录下创建 `Cancel.ts` 文件。
 
 ```typescript
 export default class Cancel {
@@ -348,7 +351,7 @@ function throwIfCancellationRequested(config: AxiosRequestConfig): void {
 }
 ```
 
-发送请求前检查一下配置的 cancelToken 是否已经使用过了，如果已经被用过则不用法请求，直接抛异常。
+发送请求前检查一下配置的 cancelToken 是否已经使用过了，如果已经被用过则不用发请求，直接抛异常。
 
 ## demo 编写
 
@@ -371,52 +374,74 @@ function throwIfCancellationRequested(config: AxiosRequestConfig): void {
 
 ```typescript
 import axios, { Canceler } from '../../src/index'
+import createButton from '../create-button'
 
 const CancelToken = axios.CancelToken
 const source = CancelToken.source()
 
-axios.get('/cancel/get', {
-  cancelToken: source.token
-}).catch(function(e) {
-  if (axios.isCancel(e)) {
-    console.log('Request canceled', e.message)
-  }
-})
-
-setTimeout(() => {
-  source.cancel('Operation canceled by the user.')
-
-  axios.post('/cancel/post', { a: 1 }, { cancelToken: source.token }).catch(function(e) {
+createButton('重复使用同一个 source.token', () => {
+  axios.get('/cancel/get', {
+    cancelToken: source.token
+  }).catch(function(e) {
     if (axios.isCancel(e)) {
-      console.log(e.message)
+      console.log('Request canceled', e.message)
     }
   })
-}, 100)
 
-let cancel: Canceler
+  setTimeout(() => {
+    source.cancel('Operation canceled by the user.')
 
-axios.get('/cancel/get', {
-  cancelToken: new CancelToken(c => {
-    cancel = c
-  })
-}).catch(function(e) {
-  if (axios.isCancel(e)) {
-    console.log('Request canceled')
-  }
+    axios.post('/cancel/post', { a: 1 }, { cancelToken: source.token }).catch(function(e) {
+      if (axios.isCancel(e)) {
+        console.log('重复使用同一个 source.token，/cancel/post 不会被发送', e.message)
+      }
+    })
+  }, 100)
 })
 
-setTimeout(() => {
-  cancel()
-}, 200)
+createButton('另一种调用方式：new CancelToken(c => cancel = c)', () => {
+  let cancel: Canceler
+
+  axios.get('/cancel/get', {
+    cancelToken: new CancelToken(c => {
+      cancel = c
+    })
+  }).catch(function(e) {
+    if (axios.isCancel(e)) {
+      console.log('Request canceled')
+    }
+  })
+
+  setTimeout(() => {
+    cancel()
+  }, 200)
+})
+```
+
+`/examples/index.html` 新增链接
+
+```html
+<!--  -->
+      <li><a href="cancel">Cancel</a></li>
+<!--  -->
+```
+
+`/examples/server.js` 新增请求处理函数
+
+```js
+router.get('/cancel/get', (req, res) => {
+  // 延迟以便测试取消请求场景
+  setTimeout(() => {
+    res.json(req.path)
+  }, 1000);
+})
+router.post('/cancel/post', (req, res) => {
+  setTimeout(() => {
+    res.json(req.path)
+  }, 1000);
+})
 ```
 
 我们的 demo 展示了 2 种使用方式，也演示了如果一个 token 已经被使用过，则再次携带该 token 的请求并不会发送。
 
 至此，我们完成了 `ts-axios` 的请求取消功能，我们巧妙地利用了 Promise 实现了异步分离。目前官方 `axios` 库的一些大的 feature 我们都已经实现了，下面的章节我们就开始补充完善 `ts-axios` 的其它功能。
-
-
-
-
-
-
-
