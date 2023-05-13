@@ -59,16 +59,41 @@ function transformURL(config: AxiosRequestConfig): string {
 
 ## demo 编写
 
-```typescript
-const instance = axios.create({
-  baseURL: 'https://img.mukewang.com/'
-})
+`examples/more-base-url/index.html`
 
-instance.get('5cc01a7b0001a33718720632.jpg')
-
-instance.get('https://img.mukewang.com/szimg/5becd5ad0001b89306000338-360-202.jpg')
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>More example</title>
+  </head>
+  <body>
+    <script src="/__build__/more-base-url.js"></script>
+  </body>
+</html>
 ```
 
-这个 demo 非常简单，我们请求了慕课网的 2 张图片，注意当第二个请求 `url` 已经是绝对地址的时候，我们并不会再去拼接 `baseURL`。
+`examples/more-base-url/app.ts`
+
+```typescript
+import axios from '../../src/index'
+
+const instance = axios.create({
+  baseURL: 'https://dummyimage.com/'
+})
+
+instance.get('/600x400/000/fff')
+
+instance.get('https://dummyimage.com/600x400/000/fff')
+```
+
+这个 demo 非常简单，我们请求了 dummyimage.com 的 2 张图片，注意当第二个请求 `url` 已经是绝对地址的时候，我们并不会再去拼接 `baseURL`。
+
+`examples/index.html` 新增链接
+
+```html
+      <li><a href="more-base-url">More: baseUrl</a></li>
+```
 
 至此，`ts-axios` 就实现了 `baseURL` 的配置功能，接下来我们来实现 `ts-axios` 的静态方法扩展。
