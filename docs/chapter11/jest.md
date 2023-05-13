@@ -56,7 +56,7 @@
 
 - [transform](https://jestjs.io/docs/en/configuration#transform-object-string-string)
 
-简单地说就是一种转换器配置，比如我们这里的 
+简单地说就是一种转换器配置，比如我们这里的
 
 ```json
 "transform": {
@@ -79,11 +79,11 @@
 - [testRegex](https://jestjs.io/docs/en/configuration#testregex-string-array-string)
 
 要测试文件的正则表达式。
- 
+
 ```json
 "testRegex": "/test/.*\\.(test|spec)\\.(ts)$"
-``` 
- 
+```
+
 表示 `test` 目录下所有以 `.test.ts` 和 `.spec.ts` 的文件都需要跑测试。
 
 - [moduleFileExtensions](https://jestjs.io/docs/en/configuration#modulefileextensions-array-string)
@@ -147,8 +147,6 @@
 
 至此，我们学习了 Jest 的安装和配置，下节课我们就开始编写 `ts-axios` 库的单元测试。
 
+## 安装 Jest、Jest Runner vscode 插件，可以辅助运行、调试测试用例
 
-
-
-
-
+这两个插件会在每个测试用例代码的上方中显示 Run|Debug 按钮，点击即可运行、调试单个用例
