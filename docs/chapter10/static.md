@@ -120,7 +120,27 @@ getUri(config?: AxiosRequestConfig): string {
 
 ## demo 编写
 
+`examples/more-static-extend/index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>More example</title>
+  </head>
+  <body>
+    <script src="/__build__/more-static-extend.js"></script>
+  </body>
+</html>
+```
+
+`examples/more-static-extend/app.ts`
+
 ```typescript
+import axios from '../../src/index'
+import createButton from '../create-button'
+
 function getA() {
   return axios.get('/more/A')
 }
@@ -129,29 +149,44 @@ function getB() {
   return axios.get('/more/B')
 }
 
-axios.all([getA(), getB()])
-  .then(axios.spread(function(resA, resB) {
-    console.log(resA.data)
-    console.log(resB.data)
-  }))
+createButton('axios.all & axios.spread', () => {
+  axios.all([getA(), getB()])
+    .then(axios.spread(function(resA, resB) {
+      console.log(resA.data)
+      console.log(resB.data)
+    }))
 
 
-axios.all([getA(), getB()])
-  .then(([resA, resB]) => {
-    console.log(resA.data)
-    console.log(resB.data)
-  })
+  axios.all([getA(), getB()])
+    .then(([resA, resB]) => {
+      console.log(resA.data)
+      console.log(resB.data)
+    })
+})
 
-const fakeConfig = {
-  baseURL: 'https://www.baidu.com/',
-  url: '/user/12345',
-  params: {
-    idClient: 1,
-    idTest: 2,
-    testString: 'thisIsATest'
+createButton('axios.getUri', () => {
+  const fakeConfig = {
+    baseURL: 'https://www.examples.com/',
+    url: '/user/12345',
+    params: {
+      idClient: 1,
+      idTest: 2,
+      testString: 'thisIsATest'
+    }
   }
-}
-console.log(axios.getUri(fakeConfig))
+  console.log(axios.getUri(fakeConfig))
+})
+```
+
+`examples/server.js`
+
+```js
+router.get('/more/A', function(req, res) {
+  res.end(req.path)
+})
+router.get('/more/B', function(req, res) {
+  res.end(req.path)
+})
 ```
 
 这里我们通过 `axios.all` 同时发出了 2 个请求，返回了 `Promise` 数组，，我们可以在 `axios.spread` 的参数函数中拿到结果，也可以直接在 then 函数的参数函数中拿到结果。另外，我们可以根据 `axios.getUri` 方法在不发送请求的情况下根据配置得到最终请求的 url 结果。
