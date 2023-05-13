@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>自定义参数序列化 | TypeScript 从零实现 axios</title>
+    <meta name="generator" content="VuePress 1.9.9">
+    
+    <meta name="description" content="学习使用 TypeScript 从零实现 axios 库">
+    
+    <link rel="preload" href="/ts-axios-doc/assets/css/0.styles.fab8ce10.css" as="style"><link rel="preload" href="/ts-axios-doc/assets/js/app.953aaa73.js" as="script"><link rel="preload" href="/ts-axios-doc/assets/js/2.bb8f3f11.js" as="script"><link rel="preload" href="/ts-axios-doc/assets/js/14.1ce1b228.js" as="script"><link rel="prefetch" href="/ts-axios-doc/assets/js/10.adc497b9.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/11.91bf9c55.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/12.06ef52c4.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/13.ffc3809b.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/15.670d9dbc.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/16.a36acff4.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/17.818fa415.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/18.824d8509.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/19.dfa685e2.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/20.b9db33c1.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/21.1863b45e.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/22.5b8d763e.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/23.43a1be77.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/24.123f6a15.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/25.0ba2ea7e.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/26.d1607c5c.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/27.d1f99ae4.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/28.8618d9e3.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/29.ee997e4c.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/3.f460a336.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/30.273438ba.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/31.83a18577.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/32.d07c277e.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/33.7da8c4ec.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/34.1ff056fc.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/35.078c204d.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/36.67d08091.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/37.c3e7deb3.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/38.fc488921.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/39.066ae695.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/4.f3f9812c.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/40.69d67231.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/41.27e26feb.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/42.af97ccc6.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/43.313fdd89.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/44.15242faf.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/45.8f6ea8c2.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/46.a06c0d62.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/47.5fee6875.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/48.b88ec62d.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/49.b65fcead.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/5.a3439370.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/50.9b1e7a7b.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/51.508ccd8e.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/52.b62824b3.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/53.d3febf9b.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/54.496b1ca9.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/55.86ca9875.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/56.5ccb8697.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/57.e60a1d22.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/58.6fb59571.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/6.c940a1e9.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/7.89ec2c95.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/8.4390baf3.js"><link rel="prefetch" href="/ts-axios-doc/assets/js/9.69e466ce.js">
+    <link rel="stylesheet" href="/ts-axios-doc/assets/css/0.styles.fab8ce10.css">
+  </head>
+  <body>
+    <div id="app" data-server-rendered="true"><div class="theme-container"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div> <a href="/ts-axios-doc/" class="home-link router-link-active"><!----> <span class="site-name">TypeScript 从零实现 axios</span></a> <div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""> <!----></div> <!----></div></header> <div class="sidebar-mask"></div> <aside class="sidebar"><!---->  <ul class="sidebar-links"><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>初识 TypeScript</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter1/" class="sidebar-link">Introduction</a></li><li><a href="/ts-axios-doc/chapter1/install.html" class="sidebar-link">安装 TypeScript</a></li><li><a href="/ts-axios-doc/chapter1/start.html" class="sidebar-link">编写第一个 TypeScript 程序</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>TypeScript 常用语法</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter2/type.html" class="sidebar-link">基础类型</a></li><li><a href="/ts-axios-doc/chapter2/declare.html" class="sidebar-link">变量声明</a></li><li><a href="/ts-axios-doc/chapter2/interface.html" class="sidebar-link">接口</a></li><li><a href="/ts-axios-doc/chapter2/class.html" class="sidebar-link">类</a></li><li><a href="/ts-axios-doc/chapter2/function.html" class="sidebar-link">函数</a></li><li><a href="/ts-axios-doc/chapter2/generic.html" class="sidebar-link">泛型</a></li><li><a href="/ts-axios-doc/chapter2/inference.html" class="sidebar-link">类型推断</a></li><li><a href="/ts-axios-doc/chapter2/advance.html" class="sidebar-link">高级类型</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 项目初始化</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter3/require.html" class="sidebar-link">需求分析</a></li><li><a href="/ts-axios-doc/chapter3/init.html" class="sidebar-link">初始化项目</a></li><li><a href="/ts-axios-doc/chapter3/base.html" class="sidebar-link">编写基础请求代码</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 基础功能实现</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter4/url.html" class="sidebar-link">处理请求 url 参数</a></li><li><a href="/ts-axios-doc/chapter4/data.html" class="sidebar-link">处理请求 body 数据</a></li><li><a href="/ts-axios-doc/chapter4/header.html" class="sidebar-link">处理请求 header</a></li><li><a href="/ts-axios-doc/chapter4/response.html" class="sidebar-link">获取响应数据</a></li><li><a href="/ts-axios-doc/chapter4/response-header.html" class="sidebar-link">处理响应 header</a></li><li><a href="/ts-axios-doc/chapter4/response-data.html" class="sidebar-link">处理响应 data</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 异常情况处理</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter5/error.html" class="sidebar-link">错误处理</a></li><li><a href="/ts-axios-doc/chapter5/enhance.html" class="sidebar-link">错误信息增强</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 接口扩展</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter6/extend.html" class="sidebar-link">扩展接口</a></li><li><a href="/ts-axios-doc/chapter6/overload.html" class="sidebar-link">axios 函数重载</a></li><li><a href="/ts-axios-doc/chapter6/generic.html" class="sidebar-link">响应数据支持泛型</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 拦截器实现</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter7/interceptor.html" class="sidebar-link">拦截器设计与实现</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 配置化实现</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter8/merge.html" class="sidebar-link">合并配置的设计与实现</a></li><li><a href="/ts-axios-doc/chapter8/transform.html" class="sidebar-link">请求和响应配置化</a></li><li><a href="/ts-axios-doc/chapter8/create.html" class="sidebar-link">扩展 axios.create 静态接口</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 取消功能实现</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter9/cancel.html" class="sidebar-link">取消功能的设计与实现</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading open"><span>ts-axios 更多功能实现</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter10/withCredentials.html" class="sidebar-link">withCredentials</a></li><li><a href="/ts-axios-doc/chapter10/xsrf.html" class="sidebar-link">XSRF 防御</a></li><li><a href="/ts-axios-doc/chapter10/upload-download.html" class="sidebar-link">上传和下载的进度监控</a></li><li><a href="/ts-axios-doc/chapter10/auth.html" class="sidebar-link">HTTP 授权</a></li><li><a href="/ts-axios-doc/chapter10/validateStatus.html" class="sidebar-link">自定义合法状态码</a></li><li><a href="/ts-axios-doc/chapter10/paramsSerializer.html" aria-current="page" class="active sidebar-link">自定义参数序列化</a><ul class="sidebar-sub-headers"><li class="sidebar-sub-header"><a href="/ts-axios-doc/chapter10/paramsSerializer.html#需求分析" class="sidebar-link">需求分析</a></li><li class="sidebar-sub-header"><a href="/ts-axios-doc/chapter10/paramsSerializer.html#代码实现" class="sidebar-link">代码实现</a></li><li class="sidebar-sub-header"><a href="/ts-axios-doc/chapter10/paramsSerializer.html#demo-编写" class="sidebar-link">demo 编写</a></li></ul></li><li><a href="/ts-axios-doc/chapter10/baseURL.html" class="sidebar-link">baseURL</a></li><li><a href="/ts-axios-doc/chapter10/static.html" class="sidebar-link">静态方法扩展</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 单元测试</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter11/preface.html" class="sidebar-link">前言</a></li><li><a href="/ts-axios-doc/chapter11/jest.html" class="sidebar-link">Jest 安装和配置</a></li><li><a href="/ts-axios-doc/chapter11/helpers.html" class="sidebar-link">辅助模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/requests.html" class="sidebar-link">请求模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/headers.html" class="sidebar-link">headers 模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/instance.html" class="sidebar-link">Axios 实例模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/interceptor.html" class="sidebar-link">拦截器模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/mergeConfig.html" class="sidebar-link">mergeConfig 模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/cancel.html" class="sidebar-link">请求取消模块单元测试</a></li><li><a href="/ts-axios-doc/chapter11/more.html" class="sidebar-link">剩余模块单元测试</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>ts-axios 部署与发布</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter12/build-deploy.html" class="sidebar-link">ts-axios 编译与发布</a></li><li><a href="/ts-axios-doc/chapter12/demo.html" class="sidebar-link">引用 ts-axios 库</a></li></ul></section></li><li><section class="sidebar-group depth-0"><p class="sidebar-heading"><span>课程总结</span> <!----></p> <ul class="sidebar-links sidebar-group-items"><li><a href="/ts-axios-doc/chapter13/summary.html" class="sidebar-link">课程回顾与总结</a></li></ul></section></li></ul> </aside> <main class="page"> <div class="theme-default-content content__default"><h1 id="自定义参数序列化"><a href="#自定义参数序列化" class="header-anchor">#</a> 自定义参数序列化</h1> <h2 id="需求分析"><a href="#需求分析" class="header-anchor">#</a> 需求分析</h2> <p>在之前的章节，我们对请求的 url 参数做了处理，我们会解析传入的 params 对象，根据一定的规则把它解析成字符串，然后添加在 url 后面。在解析的过程中，我们会对字符串 encode，但是对于一些特殊字符比如 <code>@</code>、<code>+</code> 等却不转义，这是 axios 库的默认解析规则。当然，我们也希望自己定义解析规则，于是我们希望 <code>ts-axios</code> 能在请求配置中允许我们配置一个 <code>paramsSerializer</code> 函数来自定义参数的解析规则，该函数接受 <code>params</code> 参数，返回值作为解析后的结果，如下：</p> <div class="language-typescript extra-class"><pre class="language-typescript"><code>axios<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/more/get'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+  params<span class="token operator">:</span> <span class="token punctuation">{</span>
+    a<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+    b<span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+    c<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">]</span>
+  <span class="token punctuation">}</span><span class="token punctuation">,</span>
+  <span class="token function">paramsSerializer</span><span class="token punctuation">(</span>params<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> qs<span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>params<span class="token punctuation">,</span> <span class="token punctuation">{</span> arrayFormat<span class="token operator">:</span> <span class="token string">'brackets'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><h2 id="代码实现"><a href="#代码实现" class="header-anchor">#</a> 代码实现</h2> <p>首先修改一下类型定义。</p> <p><code>types/index.ts</code>：</p> <div class="language-typescript extra-class"><pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">interface</span> <span class="token class-name">AxiosRequestConfig</span> <span class="token punctuation">{</span>
+  <span class="token comment">// ...</span>
+  paramsSerializer<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>params<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token builtin">string</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>然后修改 <code>buildURL</code> 函数的实现。</p> <p><code>helpers/url.ts</code>：</p> <div class="language-typescript extra-class"><pre class="language-typescript"><code><span class="token comment">/**
+ * @description 把 params 拼接到 url 上
+ * @example
+ * axios({
+ *   method: 'get',
+ *   url: '/base/get',
+ *   params: {
+ *     a: 1,
+ *     b: 2
+ *   }
+ * })
+ * // 拼接为
+ * /base/get?a=1&amp;b=2
+ *
+ * { foo: ['bar', 'baz'] }
+ * // 数组需要拼接为
+ * /base/get?foo[]=bar&amp;foo[]=baz'
+ *
+ * { foo: { bar: 'baz' } }
+ * // 对象需要拼接为（encode 之后的结果）
+ * /base/get?foo=%7B%22bar%22:%22baz%22%7D
+ *
+ * const date = new Date()
+ * { date }
+ * // 日期需要拼接为 date.toISOString()
+ * /base/get?date=2023-05-09T03:37:20.151Z
+ *
+ * { foo: '@:$, ' }
+ * // 允许特殊字符 \@、:、$、,、、[、] 出现在 url 中，而不被 encode。注意：空格会被转为 +
+ * // 上一行的 \at 符号实际不需要前面的反斜杠，at 符号在注释中有特殊含义，需要加个反斜杠转义一下
+ * /base/get?foo=@:$+
+ *
+ * { foo: 'bar', baz: null }
+ * // 忽略空值 null、undefined
+ * /base/get?foo=bar
+ *
+ * axios({
+ *   method: 'get',
+ *   url: '/base/get#hash',
+ *   params: {
+ *     foo: 'bar'
+ *   }
+ * })
+ * // 丢弃 url 中的哈希标记
+ * /base/get?foo=bar
+ *
+ * axios({
+ *   method: 'get',
+ *   url: '/base/get?foo=bar',
+ *   params: {
+ *     bar: 'baz'
+ *   }
+ * })
+ * // 保留 url 中已存在的参数
+ * /base/get?foo=bar&amp;bar=baz
+ */</span>
+<span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">buildURL</span><span class="token punctuation">(</span>
+  url<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">,</span>
+  params<span class="token operator">?</span><span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">,</span>
+  paramsSerializer<span class="token operator">?</span><span class="token operator">:</span> <span class="token punctuation">(</span>params<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token builtin">string</span>
+<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">string</span> <span class="token punctuation">{</span>
+  <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token operator">!</span>params<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">return</span> url
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">let</span> serializedParams
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>paramsSerializer<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    serializedParams <span class="token operator">=</span> <span class="token function">paramsSerializer</span><span class="token punctuation">(</span>params<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isURLSearchParams</span><span class="token punctuation">(</span>params<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    serializedParams <span class="token operator">=</span> params<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> parts<span class="token operator">:</span> <span class="token builtin">string</span><span class="token punctuation">[</span><span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+
+    Object<span class="token punctuation">.</span><span class="token function">keys</span><span class="token punctuation">(</span>params<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>key <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+      <span class="token keyword">const</span> val <span class="token operator">=</span> params<span class="token punctuation">[</span>key<span class="token punctuation">]</span>
+      <span class="token comment">// 忽略空值</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span>val <span class="token operator">===</span> <span class="token keyword">null</span> <span class="token operator">||</span> <span class="token keyword">typeof</span> val <span class="token operator">===</span> <span class="token string">'undefined'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">return</span>
+      <span class="token punctuation">}</span>
+      <span class="token keyword">let</span> values <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+      <span class="token comment">// 处理数组</span>
+      <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token builtin">Array</span><span class="token punctuation">.</span><span class="token function">isArray</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        values <span class="token operator">=</span> val
+        key <span class="token operator">+=</span> <span class="token string">'[]'</span>
+      <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        values <span class="token operator">=</span> <span class="token punctuation">[</span>val<span class="token punctuation">]</span>
+      <span class="token punctuation">}</span>
+      values<span class="token punctuation">.</span><span class="token function">forEach</span><span class="token punctuation">(</span>val <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+        <span class="token comment">// 处理 Date 对象</span>
+        <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isDate</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          val <span class="token operator">=</span> val<span class="token punctuation">.</span><span class="token function">toISOString</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">isPlainObject</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+          <span class="token comment">// 处理对象</span>
+          val <span class="token operator">=</span> <span class="token constant">JSON</span><span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        parts<span class="token punctuation">.</span><span class="token function">push</span><span class="token punctuation">(</span><span class="token template-string"><span class="token template-punctuation string">`</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token function">encode</span><span class="token punctuation">(</span>key<span class="token punctuation">)</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token string">=</span><span class="token interpolation"><span class="token interpolation-punctuation punctuation">${</span><span class="token function">encode</span><span class="token punctuation">(</span>val<span class="token punctuation">)</span><span class="token interpolation-punctuation punctuation">}</span></span><span class="token template-punctuation string">`</span></span><span class="token punctuation">)</span>
+      <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    <span class="token comment">// 多个参数时需要通过 &amp; 拼接</span>
+    serializedParams <span class="token operator">=</span> parts<span class="token punctuation">.</span><span class="token function">join</span><span class="token punctuation">(</span><span class="token string">'&amp;'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">if</span> <span class="token punctuation">(</span>serializedParams<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">const</span> markIndex <span class="token operator">=</span> url<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'#'</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>markIndex <span class="token operator">!==</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token comment">// 丢弃 url 中的哈希标记</span>
+      url <span class="token operator">=</span> url<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> markIndex<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token comment">// 保留 url 中已存在的参数</span>
+    url <span class="token operator">+=</span> <span class="token punctuation">(</span>url<span class="token punctuation">.</span><span class="token function">indexOf</span><span class="token punctuation">(</span><span class="token string">'?'</span><span class="token punctuation">)</span> <span class="token operator">===</span> <span class="token operator">-</span><span class="token number">1</span> <span class="token operator">?</span> <span class="token string">'?'</span> <span class="token operator">:</span> <span class="token string">'&amp;'</span><span class="token punctuation">)</span> <span class="token operator">+</span> serializedParams
+  <span class="token punctuation">}</span>
+
+  <span class="token keyword">return</span> url
+<span class="token punctuation">}</span>
+</code></pre></div><p>这里我们给 <code>buildURL</code> 函数新增了 <code>paramsSerializer</code> 可选参数，另外我们还新增了对 <code>params</code> 类型判断，如果它是一个 <code>URLSearchParams</code> 对象实例的话，我们直接返回它 <code>toString</code> 后的结果。</p> <p><code>helpers/util.ts</code>：</p> <div class="language-typescript extra-class"><pre class="language-typescript"><code><span class="token keyword">export</span> <span class="token keyword">function</span> <span class="token function">isURLSearchParams</span><span class="token punctuation">(</span>val<span class="token operator">:</span> <span class="token builtin">any</span><span class="token punctuation">)</span><span class="token operator">:</span> val <span class="token keyword">is</span> URLSearchParams <span class="token punctuation">{</span>
+  <span class="token keyword">return</span> <span class="token keyword">typeof</span> val <span class="token operator">!==</span> <span class="token string">'undefined'</span> <span class="token operator">&amp;&amp;</span> val <span class="token keyword">instanceof</span> <span class="token class-name">URLSearchParams</span>
+<span class="token punctuation">}</span>
+</code></pre></div><p>最后我们要修改 <code>buildURL</code> 调用的逻辑。</p> <p><code>core/dispatchRequest.ts</code>：</p> <div class="language-typescript extra-class"><pre class="language-typescript"><code><span class="token keyword">function</span> <span class="token function">transformURL</span><span class="token punctuation">(</span>config<span class="token operator">:</span> AxiosRequestConfig<span class="token punctuation">)</span><span class="token operator">:</span> <span class="token builtin">string</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> <span class="token punctuation">{</span> url<span class="token punctuation">,</span> params<span class="token punctuation">,</span> paramsSerializer <span class="token punctuation">}</span> <span class="token operator">=</span> config
+  <span class="token keyword">return</span> <span class="token function">buildURL</span><span class="token punctuation">(</span>url<span class="token operator">!</span><span class="token punctuation">,</span> params<span class="token punctuation">,</span> paramsSerializer<span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+</code></pre></div><h2 id="demo-编写"><a href="#demo-编写" class="header-anchor">#</a> demo 编写</h2> <p><code>examples/more-params-serializer/index.html</code></p> <div class="language-html extra-class"><pre class="language-html"><code><span class="token doctype"><span class="token punctuation">&lt;!</span><span class="token doctype-tag">DOCTYPE</span> <span class="token name">html</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>en<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>utf-8<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">&gt;</span></span>More example<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span> <span class="token attr-name">src</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>/__build__/more-params-serializer.js<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span><span class="token script"></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+  <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div><p><code>examples/more-params-serializer/app.ts</code></p> <div class="language-typescript extra-class"><pre class="language-typescript"><code><span class="token keyword">import</span> axios <span class="token keyword">from</span> <span class="token string">'../../src/index'</span>
+<span class="token keyword">import</span> qs <span class="token keyword">from</span> <span class="token string">'qs'</span>
+<span class="token keyword">import</span> createButton <span class="token keyword">from</span> <span class="token string">'../create-button'</span>
+
+<span class="token function">createButton</span><span class="token punctuation">(</span><span class="token string">'params: new URLSearchParams()'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  axios<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/more/get'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    params<span class="token operator">:</span> <span class="token keyword">new</span> <span class="token class-name">URLSearchParams</span><span class="token punctuation">(</span><span class="token string">'a=b&amp;c=d'</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token function">createButton</span><span class="token punctuation">(</span><span class="token string">'使用默认处理'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  axios<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/more/get'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    params<span class="token operator">:</span> <span class="token punctuation">{</span>
+      a<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+      b<span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+      c<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+<span class="token function">createButton</span><span class="token punctuation">(</span><span class="token string">'自定义 paramsSerializer'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+  <span class="token keyword">const</span> instance <span class="token operator">=</span> axios<span class="token punctuation">.</span><span class="token function">create</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+    <span class="token function">paramsSerializer</span><span class="token punctuation">(</span>params<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+      <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span><span class="token string">'自定义 '</span><span class="token punctuation">,</span> qs<span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>params<span class="token punctuation">,</span> <span class="token punctuation">{</span> arrayFormat<span class="token operator">:</span> <span class="token string">'brackets'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+      <span class="token keyword">return</span> qs<span class="token punctuation">.</span><span class="token function">stringify</span><span class="token punctuation">(</span>params<span class="token punctuation">,</span> <span class="token punctuation">{</span> arrayFormat<span class="token operator">:</span> <span class="token string">'brackets'</span> <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+  instance<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/more/get'</span><span class="token punctuation">,</span> <span class="token punctuation">{</span>
+    params<span class="token operator">:</span> <span class="token punctuation">{</span>
+      a<span class="token operator">:</span> <span class="token number">1</span><span class="token punctuation">,</span>
+      b<span class="token operator">:</span> <span class="token number">2</span><span class="token punctuation">,</span>
+      c<span class="token operator">:</span> <span class="token punctuation">[</span><span class="token string">'a'</span><span class="token punctuation">,</span> <span class="token string">'b'</span><span class="token punctuation">,</span> <span class="token string">'c'</span><span class="token punctuation">]</span>
+    <span class="token punctuation">}</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">then</span><span class="token punctuation">(</span>res <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    <span class="token builtin">console</span><span class="token punctuation">.</span><span class="token function">log</span><span class="token punctuation">(</span>res<span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p>我们编写了 3 种情况的请求，第一种满足请求的 params 参数是 <code>URLSearchParams</code> 对象类型的。后两种请求的结果主要区别在于前者并没有对 <code>[]</code> 转义，而后者会转义。</p> <p>默认处理：会保留 <code>[</code> <code>]</code></p> <div class="language-http extra-class"><pre class="language-http"><code><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//localhost:3000/more/get?a=1&amp;b=2&amp;c[]=a&amp;c[]=b&amp;c[]=c</span></span>
+</code></pre></div><p>自定义参数序列化，使用 <code>qs.stringify</code>：会转义 <code>[</code> -&gt; <code>%5B</code>，转义 <code>]</code> -&gt; <code>%5D</code></p> <div class="language-http extra-class"><pre class="language-http"><code><span class="token header"><span class="token header-name keyword">http</span><span class="token punctuation">:</span><span class="token header-value">//localhost:3000/more/get?a=1&amp;b=2&amp;c%5B%5D=a&amp;c%5B%5D=b&amp;c%5B%5D=c</span></span>
+</code></pre></div><p><code>examples/server.js</code> 响应内容追加 <code>query</code>，方便验证</p> <div class="language-js extra-class"><pre class="language-js"><code>  router<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token string">'/more/get'</span><span class="token punctuation">,</span> <span class="token punctuation">(</span><span class="token parameter">req<span class="token punctuation">,</span> res</span><span class="token punctuation">)</span> <span class="token operator">=&gt;</span> <span class="token punctuation">{</span>
+    res<span class="token punctuation">.</span><span class="token function">json</span><span class="token punctuation">(</span><span class="token punctuation">{</span>
+      <span class="token literal-property property">cookies</span><span class="token operator">:</span> req<span class="token punctuation">.</span>cookies<span class="token punctuation">,</span>
+      <span class="token literal-property property">query</span><span class="token operator">:</span> req<span class="token punctuation">.</span>query<span class="token punctuation">,</span>
+    <span class="token punctuation">}</span><span class="token punctuation">)</span>
+  <span class="token punctuation">}</span><span class="token punctuation">)</span>
+</code></pre></div><p><code>examples/index.html</code></p> <div class="language-html extra-class"><pre class="language-html"><code>      <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>li</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>a</span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation attr-equals">=</span><span class="token punctuation">&quot;</span>more-params-serializer<span class="token punctuation">&quot;</span></span><span class="token punctuation">&gt;</span></span>More: paramsSerializer<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>a</span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>li</span><span class="token punctuation">&gt;</span></span>
+</code></pre></div><p>至此，<code>ts-axios</code> 实现了自定义参数序列化功能，用户可以配置 <code>paramsSerializer</code> 自定义参数序列化规则。下一节课我们来实现 <code>ts-axios</code> 对 <code>baseURL</code> 的支持。</p></div> <footer class="page-edit"><!----> <!----></footer> <div class="page-nav"><p class="inner"><span class="prev">
+      ←
+      <a href="/ts-axios-doc/chapter10/validateStatus.html" class="prev">
+        自定义合法状态码
+      </a></span> <span class="next"><a href="/ts-axios-doc/chapter10/baseURL.html">
+        baseURL
+      </a>
+      →
+    </span></p></div> </main></div><div class="global-ui"></div></div>
+    <script src="/ts-axios-doc/assets/js/app.953aaa73.js" defer></script><script src="/ts-axios-doc/assets/js/2.bb8f3f11.js" defer></script><script src="/ts-axios-doc/assets/js/14.1ce1b228.js" defer></script>
+  </body>
+</html>
