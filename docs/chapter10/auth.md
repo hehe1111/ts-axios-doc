@@ -63,7 +63,26 @@ if (auth) {
 
 ## demo 编写
 
+`/examples/more-authorization/index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>More example</title>
+  </head>
+  <body>
+    <script src="/__build__/more-authorization.js"></script>
+  </body>
+</html>
+```
+
+`/examples/more-authorization/app.ts`
+
 ```typescript
+import axios from '../../src/index'
+
 axios.post('/more/post', {
   a: 1
 }, {
@@ -78,11 +97,15 @@ axios.post('/more/post', {
 
 另外，我们在 `server.js` 中对于这个路由接口写了一段小逻辑：
 
+`/examples/server.js`
+
 ```javascript
+const atob = require('atob')
+
 router.post('/more/post', function(req, res) {
   const auth = req.headers.authorization
   const [type, credentials] = auth.split(' ')
-  console.log(atob(credentials))
+  console.log('more-authorization: credentials=', atob(credentials))
   const [username, password] = atob(credentials).split(':')
   if (type === 'Basic' && username === 'Yee' && password === '123456') {
     res.json(req.body)
@@ -93,5 +116,13 @@ router.post('/more/post', function(req, res) {
 ```
 
 注意，这里我们需要安装第三方库 `atob` 实现 base64 串的解码。
+
+`/examples/index.html`
+
+```html
+<!--  -->
+      <li><a href="more-authorization">More: authorization</a></li>
+<!--  -->
+```
 
 至此，`ts-axios` 支持了 HTTP 授权功能，用户可以通过配置 auth 对象实现自动在请求 header 中添加 `Authorization` 属性。下一节课我们来实现自定义合法状态码功能。
