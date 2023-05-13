@@ -72,28 +72,52 @@ function handleResponse(response: AxiosResponse): void {
 
 ## demo 编写
 
+`examples/more-validate-status/index.html`
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>More example</title>
+  </head>
+  <body>
+    <script src="/__build__/more-validate-status.js"></script>
+  </body>
+</html>
+```
+
+`examples/more-validate-status/app.ts`
+
 ```typescript
-axios.get('/more/304').then(res => {
-  console.log(res)
-}).catch((e: AxiosError) => {
-  console.log(e.message)
+import axios from "../../src/axios"
+import { AxiosError } from "../../src"
+import createButton from '../create-button'
+
+createButton('默认情况', () => {
+  axios.get('/more/304').then(res => {
+    console.log(res)
+  }).catch((e: AxiosError) => {
+    console.log(e.message)
+  })
 })
 
-axios.get('/more/304', {
-  validateStatus(status) {
-    return status >= 200 && status < 400
-  }
-}).then(res => {
-  console.log(res)
-}).catch((e: AxiosError) => {
-  console.log(e.message)
+createButton('自定义合法状态码', () => {
+  axios.get('/more/304', {
+    validateStatus(status) {
+      return status >= 200 && status < 400
+    }
+  }).then(res => {
+    console.log(res)
+  }).catch((e: AxiosError) => {
+    console.log(e.message)
+  })
 })
 ```
 
 `server.js` 中我们编写了这个路由接口
 
 ```javascript
-
 router.get('/more/304', function(req, res) {
   res.status(304)
   res.end()
@@ -101,5 +125,13 @@ router.get('/more/304', function(req, res) {
 ```
 
 接口返回 304 状态码，对于默认的请求我们会输出一条错误信息。第二个请求中我们配置了自定义合法状态码规则，区间在 200 和 400 之间，这样就不会报错，而是可以正常输出响应对象。
+
+`/examples/index.html` 添加新链接
+
+```html
+<!--  -->
+      <li><a href="more-validate-status">More: validateStatus</a></li>
+<!--  -->
+```
 
 至此 `ts-axios` 实现了自定义合法状态码功能，用户可以配置 `validateStatus` 自定义合法状态码规则。之前有同学会质疑 `ts-axios` 对于请求 `url` 参数的序列化处理规则，下一节课我们来实现自定义参数序列化规则功能。
