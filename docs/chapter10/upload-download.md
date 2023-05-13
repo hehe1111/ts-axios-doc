@@ -20,7 +20,7 @@ axios.post('/more/post',{
 })
 ```
 
-`xhr` 对象提供了一个 [`progress`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/progress_event) 事件，我们可以监听此事件对数据的下载进度做监控；另外，[`xhr.uplaod`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload) 对象也提供了 [`progress`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/progress_event) 事件，我们可以基于此对上传进度做监控。
+`xhr` 对象提供了一个 [`progress`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/progress_event) 事件，我们可以监听此事件对数据的下载进度做监控；另外，[`xhr.upload`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload) 对象也提供了 [`progress`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/progress_event) 事件，我们可以基于此对上传进度做监控。
 
 ## 代码实现
 
