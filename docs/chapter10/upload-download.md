@@ -328,7 +328,7 @@ loadProgressBar()
 const downloadEl = document.getElementById('download')
 
 downloadEl!.addEventListener('click', e => {
-  instance.get('https://img.mukewang.com/5cc01a7b0001a33718720632.jpg')
+  instance.get('https://dummyimage.com/6000x4000/000/fff')
 })
 
 const uploadEl = document.getElementById('upload')
